@@ -11,12 +11,10 @@
 *.userprefs
 
 # Build results
-[Dd]ebug/
-[Dd]ebugPublic/
-[Rr]elease/
-[Rr]eleases/
-x64/
-x86/
+[Bb]uilds/
+[Ii]ntermediate/
+
+
 bld/
 [Bb]in/
 [Oo]bj/
@@ -301,3 +299,5 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+nuget.config
+kETONE_08.01.2017.rar

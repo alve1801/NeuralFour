@@ -1,0 +1,232 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Source">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Tiny File Dialogs">
+      <UniqueIdentifier>{65db1cea-95ff-4a8d-b41e-260edb537675}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="App">
+      <UniqueIdentifier>{a051fa37-5cca-46ab-96a8-0b726411786f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UserInterface">
+      <UniqueIdentifier>{c2fe3180-e0a4-43aa-b3fb-d2ad6a197f02}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils">
+      <UniqueIdentifier>{9cc7a8d0-a758-4935-9e92-ba4de0d0a26a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Debugs">
+      <UniqueIdentifier>{83454eea-0531-4b0d-bbdb-31075466b51a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MutliThreading">
+      <UniqueIdentifier>{3f47e22a-c7f3-4891-a502-273f444321d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Containers and Macros">
+      <UniqueIdentifier>{b254e2bd-9bde-424f-9f1f-9fd04223ddce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System Helpers">
+      <UniqueIdentifier>{dc296e26-be48-4ad6-ac8a-d2a05d43239e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CfClasses">
+      <UniqueIdentifier>{e9f31fd0-5f4d-45e4-bec3-557f571596fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SQLHelpers">
+      <UniqueIdentifier>{d8247e2c-ac8b-46b0-bff2-a0ba30b440e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ANN">
+      <UniqueIdentifier>{93d48ed7-a694-4cfa-beb1-993e486833ca}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowsHelpers.h">
+      <Filter>System Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="LinuxHelpers.h">
+      <Filter>System Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="AApp.h">
+      <Filter>App</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="DrawHelpers.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="AUserInterface.h">
+      <Filter>UserInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="Globals.h">
+      <Filter>App</Filter>
+    </ClInclude>
+    <ClInclude Include="Debugs.h">
+      <Filter>Debugs</Filter>
+    </ClInclude>
+    <ClInclude Include="SysHelpers.h">
+      <Filter>System Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="ASmartMutex.h">
+      <Filter>MutliThreading</Filter>
+    </ClInclude>
+    <ClInclude Include="AThreadInfo.h">
+      <Filter>MutliThreading</Filter>
+    </ClInclude>
+    <ClInclude Include="FKeyData.h">
+      <Filter>App</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="FVector.h">
+      <Filter>Containers and Macros</Filter>
+    </ClInclude>
+    <ClInclude Include="FRectangle.h">
+      <Filter>Containers and Macros</Filter>
+    </ClInclude>
+    <ClInclude Include="FColor.h">
+      <Filter>Containers and Macros</Filter>
+    </ClInclude>
+    <ClInclude Include="FLinearCurve.h">
+      <Filter>Containers and Macros</Filter>
+    </ClInclude>
+    <ClInclude Include="FFlag.h">
+      <Filter>Containers and Macros</Filter>
+    </ClInclude>
+    <ClInclude Include="FConfigFile.h">
+      <Filter>Containers and Macros</Filter>
+    </ClInclude>
+    <ClInclude Include="Definitions.h">
+      <Filter>Containers and Macros</Filter>
+    </ClInclude>
+    <ClInclude Include="VersionProperties.h">
+      <Filter>Containers and Macros</Filter>
+    </ClInclude>
+    <ClInclude Include="FFilePathData.h">
+      <Filter>Containers and Macros</Filter>
+    </ClInclude>
+    <ClInclude Include="FLanguageComponent.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ACfInstance.h">
+      <Filter>CfClasses</Filter>
+    </ClInclude>
+    <ClInclude Include="ACfPlayer.h">
+      <Filter>CfClasses</Filter>
+    </ClInclude>
+    <ClInclude Include="ACfUserInterface.h">
+      <Filter>UserInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="ACfMatrix.h">
+      <Filter>CfClasses</Filter>
+    </ClInclude>
+    <ClInclude Include="sparsepp.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="spp_utils.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="SqlHelpers.h">
+      <Filter>SQLHelpers</Filter>
+    </ClInclude>
+    <ClInclude Include="resource1.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ANeuralNetwork.h">
+      <Filter>ANN</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowsHelpers.cpp">
+      <Filter>System Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="LinuxHelpers.cpp">
+      <Filter>System Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="AApp.cpp">
+      <Filter>App</Filter>
+    </ClCompile>
+    <ClCompile Include="AUserInterface.cpp">
+      <Filter>UserInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="DrawHelpers.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Globals.cpp">
+      <Filter>App</Filter>
+    </ClCompile>
+    <ClCompile Include="Debugs.cpp">
+      <Filter>Debugs</Filter>
+    </ClCompile>
+    <ClCompile Include="SysHelpers.cpp">
+      <Filter>System Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="ASmartMutex.cpp">
+      <Filter>MutliThreading</Filter>
+    </ClCompile>
+    <ClCompile Include="AThreadInfo.cpp">
+      <Filter>MutliThreading</Filter>
+    </ClCompile>
+    <ClCompile Include="FKeyData.cpp">
+      <Filter>App</Filter>
+    </ClCompile>
+    <ClCompile Include="FLanguageComponent.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ACfInstance.cpp">
+      <Filter>CfClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="ACfPlayer.cpp">
+      <Filter>CfClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="ACfUserInterface.cpp">
+      <Filter>UserInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="SqlHelpers.cpp">
+      <Filter>SQLHelpers</Filter>
+    </ClCompile>
+    <ClCompile Include="ANeuralNetwork.cpp">
+      <Filter>ANN</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ConnectFour.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon1.ico">
+      <Filter>Resources</Filter>
+    </Image>
+  </ItemGroup>
+</Project>
