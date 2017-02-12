@@ -70,20 +70,27 @@ void NeuralNetwork::ANode::OpressiveMerge(ANode* Opressor, NeuralNetwork::VValue
 	{
 		for (int Index = 0; Index < OutputEdges.size(); ++Index)
 		{
-			OutputEdges[Index]->Weight = Utils::Clamp(OutputEdges[Index]->Weight + 0.5 * (GetRandomWeight() * (GetRandomWeight() - 0.5)), 0, 1);
+			OutputEdges[Index]->Weight = Opressor->OutputEdges[Index]->Weight;
 		}
-		Bias = Utils::Clamp(Bias + 0.5 * (GetRandomWeight() * (GetRandomWeight() - 0.5)), 0, 1);
+		Bias = Opressor->Bias;
 	}
 }
 
-
+void NeuralNetwork::ANode::Rebirth()
+{
+	for (int Index = 0; Index < OutputEdges.size(); ++Index)
+	{
+		OutputEdges[Index]->Weight = GetRandomWeight();
+	}
+	Bias = (GetRandomWeight() - 0.5) * 2;
+}
 
 
 NeuralNetwork::ALayer::ALayer(size_t NodeCount)
 {
 	for (int Index = 0; Index < NodeCount; ++Index)
 	{
-		Nodes.push_back(new ANode(GetRandomWeight()));
+		Nodes.push_back(new ANode((GetRandomWeight() - 0.5) * 2));
 	}
 }
 
@@ -121,7 +128,7 @@ void NeuralNetwork::ALayer::LinkLayer(ALayer* OtherLayer)
 
 
 
-NeuralNetwork::AInstance::AInstance(): Fitness(0), TotalFitness(0), HighestOpression(10)
+NeuralNetwork::AInstance::AInstance(): Fitness(0), TotalFitness(0), HighestOpression(10), UnfitGenerations(0)
 {
 }
 
@@ -217,4 +224,17 @@ void NeuralNetwork::AInstance::OpressiveMerge(AInstance* Opressor)
 	}
 
 
+}
+
+void NeuralNetwork::AInstance::Rebirth()
+{
+	ASmartWriteLock Lock(Mutex);
+	Fitness = 0;
+	for (int LayerIndex = 0; LayerIndex < Layers.size(); ++LayerIndex)
+	{
+		for (int NodeIndex = 0; NodeIndex < Layers[LayerIndex]->Nodes.size(); ++NodeIndex)
+		{
+			Layers[LayerIndex]->Nodes[NodeIndex]->Rebirth();
+		}
+	}
 }

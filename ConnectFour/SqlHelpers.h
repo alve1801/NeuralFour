@@ -1,4 +1,5 @@
 #pragma once
+#if 0
 #include <sqlite3.h>
 #include "Definitions.h"
 
@@ -20,3 +21,4 @@ namespace SqlHelpers
 	
 }
 
+#endif

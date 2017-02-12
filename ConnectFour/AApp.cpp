@@ -346,6 +346,7 @@ void AApp::Tick()
 		for (int Index = 0; Index < Opressors; ++Index)
 		{
 			Players[Length - Index - 1]->NeuralNetworkInstance->OpressiveMerge(Players[Index]->NeuralNetworkInstance);
+			Players[Length - Index - 1]->NeuralNetworkInstance->UnfitGenerations++;
 			Players[Index]->NeuralNetworkInstance->Mutate();
 		}
 

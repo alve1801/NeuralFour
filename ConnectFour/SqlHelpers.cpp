@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "SqlHelpers.h"
 
+#if 0
+
 bool SqlHelpers::OpenDataBase(wstring Path, ADataBase** DataBase, int* ErrorCode)
 {
 	int Result = sqlite3_open16(Path.data(), DataBase);
@@ -52,3 +54,4 @@ void SqlHelpers::CommitTransaction(ADataBase* DataBase)
 {
 	ExecuteCommad(DataBase, "COMMIT");
 }
+#endif

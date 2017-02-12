@@ -58,6 +58,7 @@ public:
 
 	void Mutate();
 	void OpressiveMerge(ANode* Opressor, VValue OpressionFactor);
+	void Rebirth();
 
 };
 
@@ -100,7 +101,11 @@ public:
 
 	VValue HighestOpression;
 
+	UChar UnfitGenerations;
+
 	void Mutate();
 	void OpressiveMerge(AInstance* Opressor);
+
+	void Rebirth();
 
 };
