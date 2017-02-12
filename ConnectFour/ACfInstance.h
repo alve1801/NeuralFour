@@ -4,6 +4,7 @@
 #include "ACfMatrix.h"
 #include "ASmartMutex.h"
 #include "ANeuralNetwork.h"
+#include <atomic>
 
 
 class ACfInstance
@@ -26,7 +27,7 @@ public:
 
 	ASmartMutex Mutex;
 
-	bool bNextGeneration = false;
+	atomic<bool> bNextGeneration = false;
 
 
 	ACfPlayer* Players[2];

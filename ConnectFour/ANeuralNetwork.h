@@ -17,7 +17,7 @@ namespace NeuralNetwork
 
 	inline VValue GetRandomWeight()
 	{
-		return static_cast <VValue> (rand()) / static_cast <VValue> (RAND_MAX);
+		return (static_cast<VValue>(rand()) / static_cast <VValue>(RAND_MAX) - 0.5)*2;
 	}
 
 	inline VResult GetResultFromBool(bool Input)
@@ -57,7 +57,7 @@ public:
 	void Process();
 
 	void Mutate();
-	void OpressiveMerge(ANode* Opressor, VValue OpressionFactor);
+	void GenerateOffspring(ANode* Parent0, ANode* Parent1);
 	void Rebirth();
 
 };
@@ -104,7 +104,7 @@ public:
 	UChar UnfitGenerations;
 
 	void Mutate();
-	void OpressiveMerge(AInstance* Opressor);
+	void GenerateOffspring(AInstance* Parent0, AInstance* Parent1);
 
 	void Rebirth();
 

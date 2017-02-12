@@ -54,26 +54,27 @@ void NeuralNetwork::ANode::Process()
 
 void NeuralNetwork::ANode::Mutate()
 {
-	if (GetRandomWeight() < 0.2)
+	if (GetRandomWeight() < 0.1)
 	{
 		for (int Index = 0; Index < OutputEdges.size(); ++Index)
 		{
-			OutputEdges[Index]->Weight = Utils::Clamp(OutputEdges[Index]->Weight + 0.5 * (GetRandomWeight() * (GetRandomWeight() - 0.5)), 0, 1);
+			OutputEdges[Index]->Weight = Utils::Clamp(OutputEdges[Index]->Weight + 0.1 * GetRandomWeight(), -1, 1);
 		}
-		Bias = Utils::Clamp(Bias + 0.5 * (GetRandomWeight() * (GetRandomWeight() - 0.5)), 0, 1);
+		Bias = Utils::Clamp(Bias + 0.1 * GetRandomWeight(), -1, 1);
 	}
 }
 
-void NeuralNetwork::ANode::OpressiveMerge(ANode* Opressor, NeuralNetwork::VValue OpressionFactor)
+void NeuralNetwork::ANode::GenerateOffspring(ANode* Parent0, ANode* Parent1)
 {
-	if (GetRandomWeight() < OpressionFactor)
+	if (GetRandomWeight() < 0.5)
 	{
-		for (int Index = 0; Index < OutputEdges.size(); ++Index)
-		{
-			OutputEdges[Index]->Weight = Opressor->OutputEdges[Index]->Weight;
-		}
-		Bias = Opressor->Bias;
+		Parent0 = Parent1;
 	}
+	for (int Index = 0; Index < OutputEdges.size(); ++Index)
+	{
+		OutputEdges[Index]->Weight = Parent0->OutputEdges[Index]->Weight;
+	}
+	Bias = Parent0->Bias;
 }
 
 void NeuralNetwork::ANode::Rebirth()
@@ -82,15 +83,17 @@ void NeuralNetwork::ANode::Rebirth()
 	{
 		OutputEdges[Index]->Weight = GetRandomWeight();
 	}
-	Bias = (GetRandomWeight() - 0.5) * 2;
+	Bias = GetRandomWeight();
 }
+
+
 
 
 NeuralNetwork::ALayer::ALayer(size_t NodeCount)
 {
 	for (int Index = 0; Index < NodeCount; ++Index)
 	{
-		Nodes.push_back(new ANode((GetRandomWeight() - 0.5) * 2));
+		Nodes.push_back(new ANode(GetRandomWeight()));
 	}
 }
 
@@ -191,35 +194,21 @@ void NeuralNetwork::AInstance::Mutate()
 	}
 }
 
-void NeuralNetwork::AInstance::OpressiveMerge(AInstance* Opressor)
+void NeuralNetwork::AInstance::GenerateOffspring(NeuralNetwork::AInstance* Parent0, NeuralNetwork::AInstance* Parent1)
 {
 	ASmartWriteLock Lock(Mutex);
-	ASmartWriteLock OtherLock(Opressor->Mutex);
+	ASmartWriteLock Parent0Lock(Parent0->Mutex);
+	ASmartWriteLock Parent1Lock(Parent1->Mutex);
 
-	VValue OpressionFactor = Utils::Difference(Fitness, Opressor->Fitness);
-	HighestOpression = max(HighestOpression, OpressionFactor);
-	OpressionFactor = Utils::Clamp(OpressionFactor * 0.5, 0, 1);
-
-
-	/*VValue CombinedFitness = abs(Fitness) + abs(Opressor->Fitness);
-	VValue OpressionFactor;
-	if (CombinedFitness != 0)
-	{
-		OpressionFactor = abs(Fitness) / CombinedFitness;
-	}
-	else
-	{
-		OpressionFactor = 0.5;
-	}*/
 
 	Fitness = 0;
-	Opressor->Fitness = 0;
+	TotalFitness = 0;
 
 	for (int LayerIndex = 0; LayerIndex < Layers.size(); ++LayerIndex)
 	{
 		for (int NodeIndex = 0; NodeIndex < Layers[LayerIndex]->Nodes.size(); ++NodeIndex)
 		{
-			Layers[LayerIndex]->Nodes[NodeIndex]->OpressiveMerge(Opressor->Layers[LayerIndex]->Nodes[NodeIndex], OpressionFactor);
+			Layers[LayerIndex]->Nodes[NodeIndex]->GenerateOffspring(Parent0->Layers[LayerIndex]->Nodes[NodeIndex], Parent1->Layers[LayerIndex]->Nodes[NodeIndex]);
 		}
 	}
 

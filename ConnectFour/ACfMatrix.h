@@ -3,6 +3,8 @@
 #include "Definitions.h"
 #include "FVector.h"
 
+#define MATRIX_WIDTH 7
+#define MATRIX_HEIGHT 6
 
 struct ACfMatrix
 {
@@ -13,21 +15,21 @@ struct ACfMatrix
 
 	ACfMatrix()
 	{
-		Matrix.resize(25, 0);
-		Heights.resize(5, 0);
+		Matrix.resize(MATRIX_WIDTH* MATRIX_HEIGHT, 0);
+		Heights.resize(MATRIX_WIDTH, 0);
 	}
 
 	template<typename T>
 	static UChar GetIndex(FVector<T> Position) 
 	{
-		return Position.y * 5 + Position.x;
+		return Position.y * MATRIX_WIDTH + Position.x;
 	}
 
-	template<typename T>
+	/*template<typename T>
 	static FVector<UChar> GetPosition(T Index)
 	{
 		return FVector<UChar>(Index/5, Index%5);
-	}
+	}*/
 
 	UChar& operator[](UChar Index)
 	{
@@ -42,25 +44,25 @@ struct ACfMatrix
 
 	bool HasSpace(UChar Position)
 	{
-		RETURN_IF(Heights[Position] == 5) false;
+		RETURN_IF(Heights[Position] == MATRIX_HEIGHT) false;
 		return true;
 	}
 
 	bool Insert(UChar Position, UChar Id)
 	{
-		RETURN_IF(Heights[Position] == 5) false;
-		Matrix[Position  + Heights[Position] * 5] = Id;
+		RETURN_IF(Heights[Position] == MATRIX_HEIGHT) false;
+		Matrix[Position  + Heights[Position] * MATRIX_WIDTH] = Id;
 		Heights[Position]++;
 		return true;
 	}
 
 	void Reset()
 	{
-		for (UChar Index = 0; Index < 25; ++Index)
+		for (UChar Index = 0; Index < MATRIX_HEIGHT* MATRIX_WIDTH; ++Index)
 		{
 			Matrix[Index] = 0;
 		}
-		for (UChar Index = 0; Index < 5; ++Index)
+		for (UChar Index = 0; Index < MATRIX_WIDTH; ++Index)
 		{
 			Heights[Index] = 0;
 		}

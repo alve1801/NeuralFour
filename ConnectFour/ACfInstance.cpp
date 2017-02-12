@@ -52,19 +52,22 @@ void ACfInstance::Execute()
 		
 		StartRound();
 
-		if (Rounds >= 200)
+		if (Rounds >= 20)
 		{
-			ASmartWriteLock GenLock(Mutex);
 
 			bNextGeneration = true;
+
+
 			while (true)
 			{
-				GenLock.Unlock();
+				//GenLock.Unlock();
 				THREAD_SLEEP_MS(100);
-				GenLock.Lock();
+				//GenLock.Lock();
 
 				if (!bNextGeneration)
 				{
+					ASmartWriteLock GenLock(Mutex);
+
 					Rounds = 0;
 
 					break;
@@ -154,7 +157,7 @@ void ACfInstance::StartRound()
 			}
 			else 
 			{
-				for (int Index = 0; Index < 5; ++Index)
+				for (int Index = 0; Index < MATRIX_WIDTH; ++Index)
 				{
 					if (FigureMatrix.HasSpace(Index))
 					{
@@ -198,9 +201,9 @@ void ACfInstance::UpdateFigureMatrix()
 
 bool ACfInstance::CheckForSuccess(ACfPlayer* Player)
 {
-	for (int x = 0; x < 5; ++x)
+	for (int x = 0; x < MATRIX_WIDTH; ++x)
 	{
-		for (int y = 0; y < 5; ++y)
+		for (int y = 0; y < MATRIX_HEIGHT; ++y)
 		{
 			UChar Id = FigureMatrix[FVector<UChar>(x, y)];
 			if (Id)

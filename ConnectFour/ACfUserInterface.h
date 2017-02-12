@@ -93,8 +93,10 @@ public:
 
 	double HighestValue = 0;
 	double LowestValue = 0;
+	double Scale = 0;
 
 	void AddValue(size_t Index, double Value);
+	void AddGraph();
 };
 
 #endif

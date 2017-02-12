@@ -138,6 +138,12 @@ namespace Utils
 		return T0((Val - Min) / (Max - Min));
 	}
 
+	template<typename T0>
+	T0 RandomScalar()
+	{
+		return static_cast <T0>(rand()) / static_cast<T0>(RAND_MAX);
+	}
+
 	template<typename T>
 	void VectorAppend(vector<T>& VectorA, vector<T>& VectorB, const bool bReverse = false)
 	{

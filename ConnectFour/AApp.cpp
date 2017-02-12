@@ -42,7 +42,7 @@ AApp::AApp()
 
 
 	RestartIterations = 25;
-	MerelsInstanceCount = 4;
+	MerelsInstanceCount = 16;
 
 }
 
@@ -150,10 +150,13 @@ bool AApp::InitMainWindow()
 		Players.push_back(Instances[Index]->Players[0]);
 		Players.push_back(Instances[Index]->Players[1]);
 
-		MainWindow.MainUserInterface.AddBoard(FRectangle(32 + (32+120) * Index, 32, 120, 120), Instances[Index]);
+		MainWindow.MainUserInterface.Graph->AddGraph();
+		MainWindow.MainUserInterface.Graph->AddGraph();
+
+		//MainWindow.MainUserInterface.AddBoard(FRectangle(32 + (32+120) * Index, 32, 120, 120), Instances[Index]);
 	}
 	
-	MainWindow.MainUserInterface.Boards[0]->CfInstance = Instances[0];
+	//MainWindow.MainUserInterface.Boards[0]->CfInstance = Instances[0];
 
 	return true;
 }
@@ -312,7 +315,7 @@ void AApp::Tick()
 	bool bNextGeneration = true;
 	for (int Index = 0; Index < Instances.size(); ++Index)
 	{
-		ASmartWriteLock Lock(Instances[Index]->Mutex);
+		//ASmartWriteLock Lock(Instances[Index]->Mutex);
 
 		if (!Instances[Index]->bNextGeneration)
 		{
@@ -325,37 +328,44 @@ void AApp::Tick()
 	{
 		vector<ASmartWriteLock*> Locks;
 
+		vector<NeuralNetwork::AInstance*> Neuralnetworks;
+
 		for (int Index = 0; Index < Instances.size(); ++Index)
 		{
 			MainWindow.MainUserInterface.Graph->AddValue(Index*2, Instances[Index]->Players[0]->NeuralNetworkInstance->TotalFitness);
 			MainWindow.MainUserInterface.Graph->AddValue(Index*2+1, Instances[Index]->Players[1]->NeuralNetworkInstance->TotalFitness);
-			//PRINT Instances[Index]->Players[0]->NeuralNetworkInstance->TotalFitness END;
 			Locks.push_back(new ASmartWriteLock(Instances[Index]->Mutex));
+
+			Neuralnetworks.push_back(Instances[Index]->Players[0]->NeuralNetworkInstance);
+			Neuralnetworks.push_back(Instances[Index]->Players[1]->NeuralNetworkInstance);
 		}
 
 		Generations++;
 
-		std::sort(Players.begin(), Players.end(), [](ACfPlayer* a, ACfPlayer* b)
+		std::sort(Neuralnetworks.begin(), Neuralnetworks.end(), [](NeuralNetwork::AInstance* a, NeuralNetwork::AInstance* b)
 		{
-			return b->NeuralNetworkInstance->Fitness < a->NeuralNetworkInstance->Fitness;
+			return a->Fitness > b->Fitness;
 		});
 
-		size_t Length = Players.size();
-		size_t Opressors = Length / 4;
+		size_t Length = Neuralnetworks.size();
+		size_t Suvivors = Length / 2;
 
-		for (int Index = 0; Index < Opressors; ++Index)
+		for (int Index = 0; Index < Suvivors-1; ++Index)
 		{
-			Players[Length - Index - 1]->NeuralNetworkInstance->OpressiveMerge(Players[Index]->NeuralNetworkInstance);
-			Players[Length - Index - 1]->NeuralNetworkInstance->UnfitGenerations++;
-			Players[Index]->NeuralNetworkInstance->Mutate();
+			Neuralnetworks[Index + Suvivors]->GenerateOffspring(Players[Index]->NeuralNetworkInstance, Players[Index + 1]->NeuralNetworkInstance);
+			Neuralnetworks[Index]->Mutate();
+			Neuralnetworks[Index + Suvivors]->Mutate();
 		}
+		Neuralnetworks[Suvivors - 1]->Mutate();
 
+		Neuralnetworks[Length - 1]->GenerateOffspring(Players[0]->NeuralNetworkInstance, Players[Suvivors - 1]->NeuralNetworkInstance);
+		Neuralnetworks[Length-1]->Mutate();
 
-		for (size_t Index = Opressors; Index < Length - Opressors; ++Index)
+		/*for (size_t Index = 0; Index < Instances.size(); ++Index)
 		{
-			Players[Index]->NeuralNetworkInstance->Mutate();
-		}
-
+			Instances[Index]->Players[0]->NeuralNetworkInstance = Neuralnetworks[Index * 2];
+			Instances[Index]->Players[1]->NeuralNetworkInstance = Neuralnetworks[Index * 2 + 1];
+		}*/
 
 		for (size_t Index = 0; Index < Instances.size(); ++Index)
 		{

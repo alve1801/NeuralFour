@@ -153,7 +153,7 @@ ACfBoard* AMainUserInterface::AddBoard(FRectangle BoardArea, ACfInstance* Instan
 
 ACfBoard::ACfBoard(UI::AUserInterface* InParentUserInterface, FRectangle InArea) : AComponent(InParentUserInterface, InArea)
 {
-	CellSize = Area.GetDimensions().Cast<float>() / 5.f;
+	CellSize = (Area.GetDimensions().Cast<double>() / FVector<double>(MATRIX_WIDTH, MATRIX_HEIGHT)).Cast<float>();
 }
 
 ACfBoard::~ACfBoard()
@@ -169,19 +169,23 @@ void ACfBoard::Render(SDL_Renderer* Renderer)
 	DrawRectangle(Renderer, Area, 1);
 
 
-	for (UChar Index = 1; Index < 5; ++Index)
+	for (UChar Index = 1; Index < MATRIX_WIDTH; ++Index)
 	{
 		DrawLine(Renderer, Area.TL + FPoint(CellSize.x * Index, 0), FPoint(Area.TL.x + CellSize.x * Index, Area.BR.y - 1));
-		DrawLine(Renderer, Area.TL + FPoint(0, CellSize.x * Index), FPoint(Area.BR.x - 1, Area.TL.y + CellSize.x * Index));
+		//DrawLine(Renderer, Area.TL + FPoint(0, CellSize.x * Index), FPoint(Area.BR.x - 1, Area.TL.y + CellSize.x * Index));
 	}
-
+	for (UChar Index = 1; Index < MATRIX_HEIGHT; ++Index)
+	{
+		//DrawLine(Renderer, Area.TL + FPoint(CellSize.x * Index, 0), FPoint(Area.TL.x + CellSize.x * Index, Area.BR.y - 1));
+		DrawLine(Renderer, Area.TL + FPoint(0, CellSize.y * Index), FPoint(Area.BR.x - 1, Area.TL.y + CellSize.y * Index));
+	}
 	if (Globals::App->bDrawBoards && CfInstance)
 	{
 
 		ASmartReadLock Lock(CfInstance->Mutex);
-		for (int x = 0; x < 5; ++x)
+		for (int x = 0; x < MATRIX_WIDTH; ++x)
 		{
-			for (int y = 0; y < 5; ++y)
+			for (int y = 0; y < MATRIX_HEIGHT; ++y)
 			{
 				UChar PlayerId = CfInstance->FigureMatrix[FVector<UChar>(x, y)];
 				CONTINUE_IF(PlayerId == 0);
@@ -204,7 +208,7 @@ void ACfBoard::Tick()
 
 ACfGraph::ACfGraph(UI::AUserInterface* InParentUserInterface, FRectangle InArea) : AComponent(InParentUserInterface, InArea)
 {
-	TotalEntries.push_back(pair<vector<double>, FColor>(0, FColor(255, 0, 0)));
+	/*TotalEntries.push_back(pair<vector<double>, FColor>(0, FColor(255, 0, 0)));
 	TotalEntries.push_back(pair<vector<double>, FColor>(0, FColor(0, 255, 0)));
 	TotalEntries.push_back(pair<vector<double>, FColor>(0, FColor(0, 0, 255)));
 	TotalEntries.push_back(pair<vector<double>, FColor>(0, FColor(255, 0, 255)));
@@ -213,7 +217,7 @@ ACfGraph::ACfGraph(UI::AUserInterface* InParentUserInterface, FRectangle InArea)
 	TotalEntries.push_back(pair<vector<double>, FColor>(0, FColor(255, 128, 0)));
 	TotalEntries.push_back(pair<vector<double>, FColor>(0, FColor(255, 0, 128)));
 	TotalEntries.push_back(pair<vector<double>, FColor>(0, FColor(255, 128, 128)));
-	TotalEntries.push_back(pair<vector<double>, FColor>(0, FColor(128, 255, 128)));
+	TotalEntries.push_back(pair<vector<double>, FColor>(0, FColor(128, 255, 128)));*/
 }
 
 ACfGraph::~ACfGraph()
@@ -233,27 +237,31 @@ void ACfGraph::Render(SDL_Renderer* Renderer)
 		return;
 	}
 	int Height = Area.GetHeight();
-	int PixelStepSize = Area.GetWidth() / 10;
+	int PixelStepSize = 10;
+	int EntryCount = Area.GetWidth() / PixelStepSize;
+
 	for (int Index = 0; Index < TotalEntries.size(); ++Index)
 	{
-		if (TotalEntries[Index].first.size() < 10)
+	/*	if (TotalEntries[Index].first.size() < EntryCount)
 		{
 			continue;
-		}
+		}*/
 
 	
-		int Pixel = Area.TL.x;
 		SetRenderColor(Renderer, TotalEntries[Index].second);
 
 		int LastPixel = 0;
-		for (size_t ValueIndex = TotalEntries[Index].first.size()-10; ValueIndex < TotalEntries[Index].first.size(); ValueIndex += 1)
+		int Pixel = Area.TL.x;
+
+
+
+		for (size_t ValueIndex = size_t(max(int(TotalEntries[Index].first.size())- EntryCount, 0)); ValueIndex < TotalEntries[Index].first.size(); ValueIndex += 1)
 		{
-			int Current = int(Area.BR.y - Height*Utils::Percentage(TotalEntries[Index].first[size_t(ValueIndex)], LowestValue, HighestValue));
+			int Current = int(Area.BR.y - Height*Utils::Percentage(TotalEntries[Index].first[size_t(ValueIndex)], -Scale, Scale));
 
 			if (Pixel > Area.TL.x)
 			{
 				SDL_RenderDrawLine(Renderer, Pixel - PixelStepSize, LastPixel, Pixel, Current);
-
 			}
 
 
@@ -290,8 +298,14 @@ void ACfGraph::AddValue(size_t Index, double Value)
 {
 	LowestValue = min(LowestValue, Value);
 	HighestValue = max(HighestValue, Value);
-
+	Scale = max(abs(LowestValue), abs(HighestValue));
 
 	TotalEntries[Index].first.push_back(Value);
+
+}
+
+void ACfGraph::AddGraph()
+{
+	TotalEntries.push_back(pair<vector<double>, FColor>(0, FColor(Utils::RandomScalar<double>() * 255, Utils::RandomScalar<double>() * 255, Utils::RandomScalar<double>() * 255)));
 
 }

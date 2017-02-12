@@ -12,9 +12,9 @@ ACfPlayer::ACfPlayer(ACfInstance* InInstance, UChar Index)
 	Instance = InInstance;
 	Id = Index + 1;
 	NeuralNetworkInstance = new NeuralNetwork::AInstance();
-	NeuralNetworkInstance->AddLayer(5 * 5 * 2);
-	NeuralNetworkInstance->AddLayer(size_t(5 * 5 * 2 * 2));
-	NeuralNetworkInstance->AddLayer(5);
+	NeuralNetworkInstance->AddLayer(MATRIX_WIDTH * MATRIX_HEIGHT * 3);
+	NeuralNetworkInstance->AddLayer(size_t(MATRIX_WIDTH * MATRIX_HEIGHT * 3 * 2));
+	NeuralNetworkInstance->AddLayer(MATRIX_WIDTH);
 }
 
 ACfPlayer::~ACfPlayer()
@@ -40,7 +40,7 @@ bool ACfPlayer::NextMove()
 		UChar PlayerId = Instance->FigureMatrix[Index];
 		InputLayer->Nodes[Index * 2]->Value = NeuralNetwork::GetResultFromBool(PlayerId == 0);
 		InputLayer->Nodes[Index * 2 + 1]->Value = NeuralNetwork::GetResultFromBool(PlayerId == Id);
-		//InputLayer->Nodes[Index * 3 + 2]->Value = NeuralNetwork::GetResultFromBool(PlayerId != Id && PlayerId != 0);
+		InputLayer->Nodes[Index * 3 + 2]->Value = NeuralNetwork::GetResultFromBool(PlayerId != Id && PlayerId != 0);
 	}
 	NeuralNetworkInstance->Process();
 
