@@ -161,6 +161,18 @@ namespace Utils
 		return Vector.find(Element) != Vector.end();
 	}
 
+	inline string ToHexadecimal(int Integer)
+	{
+		char Buffer[16];
+		return _itoa(Integer, Buffer, 16);
+	}
+
+	inline string ToHexadecimal(long Integer)
+	{
+		char Buffer[32];
+		return _ltoa(Integer, Buffer, 16);
+	}
+
 	inline string ReadAllBinary(const string& path)
 	{
 		ostringstream buf;

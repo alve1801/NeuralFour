@@ -32,7 +32,8 @@ void ACfInstance::Init()
 	Players[0] = new ACfPlayer(this, 0);
 	Players[1] = new ACfPlayer(this, 1);
 
-	
+	AllNeuralNetworkInstances.push_back(Players[0]->NeuralNetworkInstance);
+	AllNeuralNetworkInstances.push_back(Players[1]->NeuralNetworkInstance);
 
 	Thread = new boost::thread(boost::bind(&ACfInstance::Execute, this));
 }
@@ -52,63 +53,83 @@ void ACfInstance::Execute()
 		
 		StartRound();
 
-		if (Rounds >= 20)
-		{
-
-			bNextGeneration = true;
-
-
-			while (true)
-			{
-				//GenLock.Unlock();
-				THREAD_SLEEP_MS(100);
-				//GenLock.Lock();
-
-				if (!bNextGeneration)
-				{
-					ASmartWriteLock GenLock(Mutex);
-
-					Rounds = 0;
-
-					break;
-				}
-			}
-		}
-
-		//if (Rounds > 0 && Rounds % 100 == 0)
-		//{
-		//	double DeltaFitness = Utils::Difference(Players[0]->NeuralNetworkInstance.Fitness, Players[1]->NeuralNetworkInstance.Fitness);
-
-		//	if (DeltaFitness > 3)
-		//	{
-		//		PRINT "Opression"  TAB DeltaFitness END;
-		//		if (Players[0]->NeuralNetworkInstance.Fitness > Players[1]->NeuralNetworkInstance.Fitness)
-		//		{
-		//			Players[0]->NeuralNetworkInstance.OpressiveMerge(&Players[1]->NeuralNetworkInstance);
-		//			Players[1]->NeuralNetworkInstance.Mutate();
-
-		//		}
-		//		else
-		//		{
-		//			Players[1]->NeuralNetworkInstance.OpressiveMerge(&Players[0]->NeuralNetworkInstance);
-		//			Players[0]->NeuralNetworkInstance.Mutate();
-
-
-		//		}
-		//		//throw runtime_error("asd");
-
-		//	}
-		//	else
-		//	{
-		//		PRINT "Mutate" END;
-		//		Players[0]->NeuralNetworkInstance.Mutate();
-		//		Players[1]->NeuralNetworkInstance.Mutate();
-		//	}
-		//	
-		//}
-
 		Rounds++;
 		TotalRounds++;
+
+		if (Rounds >= 2)
+		{
+
+			//bNextGeneration = true;
+
+
+			//while (true)
+			//{
+			//	//GenLock.Unlock();
+			//	THREAD_SLEEP_MS(100);
+			//	//GenLock.Lock();
+
+			//	if (!bNextGeneration)
+			//	{
+			//		ASmartWriteLock GenLock(Mutex);
+
+			//		Rounds = 0;
+
+			//		break;
+			//	}
+			//}
+			NeuralNetwork::AInstance* Opponent = Players[0]->NeuralNetworkInstance;
+			NeuralNetwork::AInstance* Gladiator = Players[1]->NeuralNetworkInstance;
+			OpponentIndex++;
+			if (Gladiator->Fitness < Opponent->Fitness)
+			{
+				Opponent->Wins++;
+				Opponent->Fitness = 0;
+
+				Gladiator->GenerateOffspring(AllNeuralNetworkInstances[AllNeuralNetworkInstances.size() - 2]);
+				Gladiator->Fitness = 0;
+				Offsprings++;
+				PRINT "Bad Offspring" TAB Generations TAB Offsprings TAB OpponentIndex TAB Opponent->Fitness END;
+
+				OpponentIndex = 0;
+
+
+			}
+			else if (OpponentIndex == AllNeuralNetworkInstances.size() -1)
+			{
+				Opponent->Fitness = 0;
+
+				Gladiator->Wins++;
+
+				Players[1]->NeuralNetworkInstance = new NeuralNetwork::AInstance();
+				Players[1]->NeuralNetworkInstance->AddLayer(MATRIX_WIDTH * MATRIX_HEIGHT * 3);
+				Players[1]->NeuralNetworkInstance->AddLayer(size_t(MATRIX_WIDTH * MATRIX_HEIGHT * 3 * 2));
+				Players[1]->NeuralNetworkInstance->AddLayer(MATRIX_WIDTH);
+
+				Players[1]->NeuralNetworkInstance->GenerateOffspring(Gladiator);
+				AllNeuralNetworkInstances.push_back(Players[1]->NeuralNetworkInstance);
+
+				Generations++;
+				Offsprings++;
+
+				PRINT "Next Gen" TAB Generations END;
+
+				OpponentIndex = 0;
+
+			}
+			else
+			{
+				Opponent->Fitness = 0;
+				Players[0]->NeuralNetworkInstance = AllNeuralNetworkInstances[OpponentIndex];
+				Players[0]->NeuralNetworkInstance->Fitness = 0;
+			}
+			
+
+			Rounds = 0;
+
+
+		}
+
+		
 	}
 }
 
@@ -157,13 +178,13 @@ void ACfInstance::StartRound()
 			}
 			else 
 			{
-				for (int Index = 0; Index < MATRIX_WIDTH; ++Index)
+				for (int RowIndex = 0; RowIndex < MATRIX_WIDTH; ++RowIndex)
 				{
-					if (FigureMatrix.HasSpace(Index))
+					if (FigureMatrix.HasSpace(RowIndex))
 					{
 						break;
 					}
-					if (Index == 4)
+					if (RowIndex == 4)
 					{
 						bEnd = true;
 						break;

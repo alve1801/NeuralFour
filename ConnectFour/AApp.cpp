@@ -42,7 +42,7 @@ AApp::AApp()
 
 
 	RestartIterations = 25;
-	MerelsInstanceCount = 16;
+	MerelsInstanceCount = 1;
 
 }
 
@@ -324,65 +324,73 @@ void AApp::Tick()
 		}
 
 	}
-	if (bNextGeneration)
-	{
-		vector<ASmartWriteLock*> Locks;
+	//if (bNextGeneration)
+	//{
+	//	vector<ASmartWriteLock*> Locks;
 
-		vector<NeuralNetwork::AInstance*> Neuralnetworks;
+	//	vector<NeuralNetwork::AInstance*> Neuralnetworks;
 
-		for (int Index = 0; Index < Instances.size(); ++Index)
-		{
-			MainWindow.MainUserInterface.Graph->AddValue(Index*2, Instances[Index]->Players[0]->NeuralNetworkInstance->TotalFitness);
-			MainWindow.MainUserInterface.Graph->AddValue(Index*2+1, Instances[Index]->Players[1]->NeuralNetworkInstance->TotalFitness);
-			Locks.push_back(new ASmartWriteLock(Instances[Index]->Mutex));
+	//	for (int Index = 0; Index < Instances.size(); ++Index)
+	//	{
 
-			Neuralnetworks.push_back(Instances[Index]->Players[0]->NeuralNetworkInstance);
-			Neuralnetworks.push_back(Instances[Index]->Players[1]->NeuralNetworkInstance);
-		}
+	//		//static ULong BaseValue =
 
-		Generations++;
+	//		//MainWindow.MainUserInterface.Graph->AddValue(Index*2, Instances[Index]->Players[0]->NeuralNetworkInstance->TotalFitness);
+	//		//MainWindow.MainUserInterface.Graph->AddValue(Index*2+1, Instances[Index]->Players[1]->NeuralNetworkInstance->TotalFitness);
+	//		Locks.push_back(new ASmartWriteLock(Instances[Index]->Mutex));
 
-		std::sort(Neuralnetworks.begin(), Neuralnetworks.end(), [](NeuralNetwork::AInstance* a, NeuralNetwork::AInstance* b)
-		{
-			return a->Fitness > b->Fitness;
-		});
-
-		size_t Length = Neuralnetworks.size();
-		size_t Suvivors = Length / 2;
-
-		for (int Index = 0; Index < Suvivors-1; ++Index)
-		{
-			Neuralnetworks[Index + Suvivors]->GenerateOffspring(Players[Index]->NeuralNetworkInstance, Players[Index + 1]->NeuralNetworkInstance);
-			Neuralnetworks[Index]->Mutate();
-			Neuralnetworks[Index + Suvivors]->Mutate();
-		}
-		Neuralnetworks[Suvivors - 1]->Mutate();
-
-		Neuralnetworks[Length - 1]->GenerateOffspring(Players[0]->NeuralNetworkInstance, Players[Suvivors - 1]->NeuralNetworkInstance);
-		Neuralnetworks[Length-1]->Mutate();
-
-		/*for (size_t Index = 0; Index < Instances.size(); ++Index)
-		{
-			Instances[Index]->Players[0]->NeuralNetworkInstance = Neuralnetworks[Index * 2];
-			Instances[Index]->Players[1]->NeuralNetworkInstance = Neuralnetworks[Index * 2 + 1];
-		}*/
-
-		for (size_t Index = 0; Index < Instances.size(); ++Index)
-		{
-			Instances[Index]->bNextGeneration = false;
-		}
+	//		Neuralnetworks.push_back(Instances[Index]->Players[0]->NeuralNetworkInstance);
+	//		Neuralnetworks.push_back(Instances[Index]->Players[1]->NeuralNetworkInstance);
+	//	}
 
 
-		while (!Locks.empty())
-		{
-			delete Locks.back();
-			Locks.pop_back();
-		}
+	//	//for (int Index = 0; Index < Neuralnetworks.size(); ++Index)
+	//	//{
+	//	//	Neuralnetworks[Index]->GenerateDna();
+	//	//}
+	//	//Generations++;
 
-		
+	//	//std::sort(Neuralnetworks.begin(), Neuralnetworks.end(), [](NeuralNetwork::AInstance* a, NeuralNetwork::AInstance* b)
+	//	//{
+	//	//	return a->Fitness > b->Fitness;
+	//	//});
 
-		PRINT "Next Gen" TAB Generations END;
-	}
+	//	//size_t Length = Neuralnetworks.size();
+	//	//size_t Suvivors = Length / 2;
+
+	//	//for (int Index = 0; Index < Suvivors-1; ++Index)
+	//	//{
+	//	//	Neuralnetworks[Index + Suvivors]->GenerateOffspring(Players[Index]->NeuralNetworkInstance, Players[Index + 1]->NeuralNetworkInstance);
+	//	//	Neuralnetworks[Index]->Mutate();
+	//	//	Neuralnetworks[Index + Suvivors]->Mutate();
+	//	//}
+	//	//Neuralnetworks[Suvivors - 1]->Mutate();
+
+	//	//Neuralnetworks[Length - 1]->GenerateOffspring(Players[0]->NeuralNetworkInstance, Players[Suvivors - 1]->NeuralNetworkInstance);
+	//	//Neuralnetworks[Length-1]->Mutate();
+
+	//	///*for (size_t Index = 0; Index < Instances.size(); ++Index)
+	//	//{
+	//	//	Instances[Index]->Players[0]->NeuralNetworkInstance = Neuralnetworks[Index * 2];
+	//	//	Instances[Index]->Players[1]->NeuralNetworkInstance = Neuralnetworks[Index * 2 + 1];
+	//	//}*/
+
+	//	for (size_t Index = 0; Index < Instances.size(); ++Index)
+	//	{
+	//		Instances[Index]->bNextGeneration = false;
+	//	}
+
+
+	//	while (!Locks.empty())
+	//	{
+	//		delete Locks.back();
+	//		Locks.pop_back();
+	//	}
+
+	//	
+
+	//	PRINT "Next Gen" TAB Generations END;
+	//}
 
 	//MainWindow.MainUserInterface.Graph->TotalEntries.push_back(Globals::MerelsArchive.GetEntryCount());
 

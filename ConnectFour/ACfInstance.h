@@ -22,6 +22,13 @@ public:
 
 	static vector<ACfInstance*> AllInstances;
 
+	vector<NeuralNetwork::AInstance*> AllNeuralNetworkInstances;
+	size_t OpponentIndex;
+	//NeuralNetwork::AInstance* Gl
+
+	size_t Generations = 1;
+	size_t Offsprings = 0;
+
 
 	boost::thread* Thread;
 

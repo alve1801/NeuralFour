@@ -54,19 +54,19 @@ void NeuralNetwork::ANode::Process()
 
 void NeuralNetwork::ANode::Mutate()
 {
-	if (GetRandomWeight() < 0.1)
+	if (GetRandomWeight() > 0.7)
 	{
 		for (int Index = 0; Index < OutputEdges.size(); ++Index)
 		{
-			OutputEdges[Index]->Weight = Utils::Clamp(OutputEdges[Index]->Weight + 0.1 * GetRandomWeight(), -1, 1);
+			OutputEdges[Index]->Weight = Utils::Clamp(OutputEdges[Index]->Weight + 0.3 * GetRandomWeight(), -1, 1);
 		}
-		Bias = Utils::Clamp(Bias + 0.1 * GetRandomWeight(), -1, 1);
+		Bias = Utils::Clamp(Bias + 0.3 * GetRandomWeight(), -1, 1);
 	}
 }
 
 void NeuralNetwork::ANode::GenerateOffspring(ANode* Parent0, ANode* Parent1)
 {
-	if (GetRandomWeight() < 0.5)
+	if (GetRandomWeight() < 0)
 	{
 		Parent0 = Parent1;
 	}
@@ -75,6 +75,16 @@ void NeuralNetwork::ANode::GenerateOffspring(ANode* Parent0, ANode* Parent1)
 		OutputEdges[Index]->Weight = Parent0->OutputEdges[Index]->Weight;
 	}
 	Bias = Parent0->Bias;
+}
+
+void NeuralNetwork::ANode::GenerateOffspring(ANode* Parent)
+{
+	for (int Index = 0; Index < OutputEdges.size(); ++Index)
+	{
+		OutputEdges[Index]->Weight = Parent->OutputEdges[Index]->Weight;
+	}
+	Bias = Parent->Bias;
+	Mutate();
 }
 
 void NeuralNetwork::ANode::Rebirth()
@@ -131,7 +141,7 @@ void NeuralNetwork::ALayer::LinkLayer(ALayer* OtherLayer)
 
 
 
-NeuralNetwork::AInstance::AInstance(): Fitness(0), TotalFitness(0), HighestOpression(10), UnfitGenerations(0)
+NeuralNetwork::AInstance::AInstance(): Fitness(0), TotalFitness(0), HighestOpression(10)
 {
 }
 
@@ -147,6 +157,34 @@ void NeuralNetwork::AInstance::AddLayer(size_t NodeCount)
 	if (Layers.size() > 1)
 	{
 		Layers[Layers.size() - 2]->LinkLayer(Layers[Layers.size() - 1]);
+	}
+}
+
+void NeuralNetwork::AInstance::GenerateDna()
+{
+	ASmartWriteLock Lock(Mutex);
+
+	Dna.clear();
+
+	Dna.append(ValueSerialization(Layers.size()));
+
+	for (int Index = 0; Index < Layers.size(); ++Index)
+	{
+		Dna.append(ValueSerialization(Layers[Index]->Nodes.size()));
+	}
+
+	for (int LayerIndex = 0; LayerIndex < Layers.size(); ++LayerIndex)
+	{
+		for (int NodeIndex = 0; NodeIndex < Layers[LayerIndex]->Nodes.size(); ++NodeIndex)
+		{
+			Dna.append(ValueSerialization(Layers[LayerIndex]->Nodes[NodeIndex]->Bias));
+
+			for (int OutputEdgeIndex = 0; OutputEdgeIndex < Layers[LayerIndex]->Nodes[NodeIndex]->OutputEdges.size(); ++OutputEdgeIndex)
+			{
+				Dna.append(ValueSerialization(Layers[LayerIndex]->Nodes[NodeIndex]->OutputEdges[OutputEdgeIndex]->Weight));
+
+			}
+		}
 	}
 }
 
@@ -213,6 +251,24 @@ void NeuralNetwork::AInstance::GenerateOffspring(NeuralNetwork::AInstance* Paren
 	}
 
 
+}
+
+void NeuralNetwork::AInstance::GenerateOffspring(AInstance* Parent)
+{
+	ASmartWriteLock Lock(Mutex);
+	ASmartWriteLock ParentLock(Parent->Mutex);
+
+
+	Fitness = 0;
+	TotalFitness = 0;
+
+	for (int LayerIndex = 0; LayerIndex < Layers.size(); ++LayerIndex)
+	{
+		for (int NodeIndex = 0; NodeIndex < Layers[LayerIndex]->Nodes.size(); ++NodeIndex)
+		{
+			Layers[LayerIndex]->Nodes[NodeIndex]->GenerateOffspring(Parent->Layers[LayerIndex]->Nodes[NodeIndex]);
+		}
+	}
 }
 
 void NeuralNetwork::AInstance::Rebirth()
