@@ -306,6 +306,6 @@ void ACfGraph::AddValue(size_t Index, double Value)
 
 void ACfGraph::AddGraph()
 {
-	TotalEntries.push_back(pair<vector<double>, FColor>(0, FColor(Utils::RandomScalar<double>() * 255, Utils::RandomScalar<double>() * 255, Utils::RandomScalar<double>() * 255)));
+	TotalEntries.push_back(pair<vector<double>, FColor>(0, FColor(UChar(Utils::RandomScalar<double>() * 255), UChar(Utils::RandomScalar<double>() * 255), UChar(Utils::RandomScalar<double>() * 255))));
 
 }

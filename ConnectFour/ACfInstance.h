@@ -22,12 +22,15 @@ public:
 
 	static vector<ACfInstance*> AllInstances;
 
-	vector<NeuralNetwork::AInstance*> AllNeuralNetworkInstances;
+	//vector<NeuralNetwork::AInstance*> AllNeuralNetworkInstances;
+	vector<NeuralNetwork::AInstance*> Opponents;
 	size_t OpponentIndex;
-	//NeuralNetwork::AInstance* Gl
+	NeuralNetwork::AInstance* LastGladiator;
+	std::ofstream Log;
 
 	size_t Generations = 1;
 	size_t Offsprings = 0;
+	size_t CurrentFailedOffsprings = 0;
 
 
 	boost::thread* Thread;
@@ -49,7 +52,11 @@ public:
 
 	bool CheckForSuccess(ACfPlayer* Player);
 
+	void SaveGladiator(NeuralNetwork::AInstance* Gladiator, size_t Index);
+
 private:
 	int PlayerOffset = 0;
+
+	
 
 };

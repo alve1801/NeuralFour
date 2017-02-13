@@ -3,6 +3,9 @@
 #include "Globals.h"
 #include "AApp.h"
 #include "SqlHelpers.h"
+#include "SysHelpers.h"
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
 
 vector<ACfInstance*> ACfInstance::AllInstances;
 
@@ -32,8 +35,41 @@ void ACfInstance::Init()
 	Players[0] = new ACfPlayer(this, 0);
 	Players[1] = new ACfPlayer(this, 1);
 
-	AllNeuralNetworkInstances.push_back(Players[0]->NeuralNetworkInstance);
-	AllNeuralNetworkInstances.push_back(Players[1]->NeuralNetworkInstance);
+	Log.open(SysHelpers::GetAppUserStorageLocation() + L"\\Log.csv", ofstream::app);
+	Log << "Generations" << ";" << "Offsprings" << ";" << "CurrentFailedOffsprings" << ";" << endl;
+
+	size_t Index = 1;
+	ifstream File;
+
+	while (true)
+	{
+		wstring Filename = SysHelpers::GetAppUserStorageLocation() + L"\\Gladiator_" + to_wstring(Index) + L".Glad";
+		File.open(Filename, ifstream::binary);
+		BREAK_IF(!File.is_open() || File.bad());
+		boost::archive::binary_iarchive ia(File);
+
+		NeuralNetwork::AInstance* NewIntance;
+		ia >> NewIntance;
+		Opponents.push_back(NewIntance);
+		File.close();
+		Index++;
+		Generations++;
+	}
+
+
+	if (Opponents.size() > 2)
+	{
+		delete Players[0]->NeuralNetworkInstance;
+		delete Players[1]->NeuralNetworkInstance;
+		Players[0]->NeuralNetworkInstance = Opponents[Opponents.size() - 2];
+		Players[1]->NeuralNetworkInstance = Opponents[Opponents.size() - 1];
+	}
+	else
+	{
+		Opponents.push_back(Players[0]->NeuralNetworkInstance);
+		Opponents.push_back(Players[1]->NeuralNetworkInstance);
+	}
+	
 
 	Thread = new boost::thread(boost::bind(&ACfInstance::Execute, this));
 }
@@ -84,44 +120,66 @@ void ACfInstance::Execute()
 			{
 				Opponent->Wins++;
 				Opponent->Fitness = 0;
-
-				Gladiator->GenerateOffspring(AllNeuralNetworkInstances[AllNeuralNetworkInstances.size() - 2]);
+				if (LastGladiator == nullptr)
+				{
+					LastGladiator = Opponent;
+				}
+				Gladiator->GenerateOffspring(LastGladiator);
 				Gladiator->Fitness = 0;
 				Offsprings++;
-				PRINT "Bad Offspring" TAB Generations TAB Offsprings TAB OpponentIndex TAB Opponent->Fitness END;
+				CurrentFailedOffsprings++;
+				//PRINT "Bad Offspring" TAB Generations TAB Offsprings TAB OpponentIndex TAB Opponent->Fitness END;
 
 				OpponentIndex = 0;
 
 
 			}
-			else if (OpponentIndex == AllNeuralNetworkInstances.size() -1)
+			else if (OpponentIndex == Opponents.size() -1)
 			{
-				Opponent->Fitness = 0;
-
+				LastGladiator = Gladiator;
 				Gladiator->Wins++;
-
-				Players[1]->NeuralNetworkInstance = new NeuralNetwork::AInstance();
-				Players[1]->NeuralNetworkInstance->AddLayer(MATRIX_WIDTH * MATRIX_HEIGHT * 3);
-				Players[1]->NeuralNetworkInstance->AddLayer(size_t(MATRIX_WIDTH * MATRIX_HEIGHT * 3 * 2));
-				Players[1]->NeuralNetworkInstance->AddLayer(MATRIX_WIDTH);
-
-				Players[1]->NeuralNetworkInstance->GenerateOffspring(Gladiator);
-				AllNeuralNetworkInstances.push_back(Players[1]->NeuralNetworkInstance);
+				SaveGladiator(Gladiator, Generations);
+				Players[1]->NeuralNetworkInstance = NeuralNetwork::AInstance::ConstructOffspring(Gladiator);
+				Opponents.push_back(Players[1]->NeuralNetworkInstance);
 
 				Generations++;
 				Offsprings++;
 
-				PRINT "Next Gen" TAB Generations END;
+				PRINT "Next Gen" TAB Generations TAB Offsprings TAB CurrentFailedOffsprings END;
+
+				Log << to_string(Generations) << ";" << to_string(Offsprings) << ";" << to_string(CurrentFailedOffsprings) << ";" << endl;
+
+				Opponent->Fitness = 0;
 
 				OpponentIndex = 0;
+				CurrentFailedOffsprings = 0;
 
+				if (Generations % 50 == 0)
+				{
+					std::sort(Opponents.begin(), Opponents.end(), [](NeuralNetwork::AInstance* a, NeuralNetwork::AInstance* b)
+					{
+						return a->Wins > b->Wins;
+					});
+					if (Opponents.size() > 500)
+					{
+						for (int Index = int(Opponents.size() - 1); Index >= int(Opponents.size() - 50); --Index)
+						{
+							if (Opponents[Index] != Gladiator)
+							{
+								delete Opponents[Index];
+								Opponents.erase(Opponents.begin() + Index);
+							}
+						}
+					}
+
+					PRINT "SORT" TAB Opponents.front()->Wins TAB Opponents.back()->Wins TAB Opponents.size() END;
+
+				}
 			}
-			else
-			{
-				Opponent->Fitness = 0;
-				Players[0]->NeuralNetworkInstance = AllNeuralNetworkInstances[OpponentIndex];
-				Players[0]->NeuralNetworkInstance->Fitness = 0;
-			}
+
+			Opponent->Fitness = 0;
+			Players[0]->NeuralNetworkInstance = Opponents[OpponentIndex];
+			Players[0]->NeuralNetworkInstance->Fitness = 0;
 			
 
 			Rounds = 0;
@@ -255,6 +313,23 @@ bool ACfInstance::CheckForSuccess(ACfPlayer* Player)
 
 
 	return false;
+}
+
+void ACfInstance::SaveGladiator(NeuralNetwork::AInstance* Gladiator, size_t Index)
+{
+	ASmartWriteLock Lock(Gladiator->Mutex);
+
+	ofstream fs(SysHelpers::GetAppUserStorageLocation() + L"\\Gladiator_" + to_wstring(Index) + L".Glad", ofstream::binary);
+	if (fs)
+	{
+		boost::archive::binary_oarchive oa(fs);
+		oa << Gladiator;
+		fs.close();
+	}
+	else
+	{
+		cout << "Handle invalid";
+	}
 }
 
 

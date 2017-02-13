@@ -3,6 +3,10 @@
 #include "Utils.h"
 
 
+NeuralNetwork::AEdge::AEdge(): TargetNode(nullptr), Weight(0)
+{
+}
+
 NeuralNetwork::AEdge::AEdge(ANode* InTargetNode, VValue InWeight) : TargetNode(InTargetNode), Weight(InWeight)
 {
 }
@@ -18,6 +22,10 @@ void NeuralNetwork::AEdge::TransmitData(VResult Value) const
 
 
 
+
+NeuralNetwork::ANode::ANode(): Value(0), InValue(0), Bias(0)
+{
+}
 
 NeuralNetwork::ANode::ANode(VValue InBias) : Value(0), InValue(0), Bias(InBias)
 {
@@ -42,13 +50,9 @@ void NeuralNetwork::ANode::Process()
 	{
 		Value = 1;
 	}
-	else if (InValue < 0)
-	{
-		Value = -1;
-	}
 	else
 	{
-		Value = 0;
+		Value = -1;
 	}
 }
 
@@ -58,9 +62,9 @@ void NeuralNetwork::ANode::Mutate()
 	{
 		for (int Index = 0; Index < OutputEdges.size(); ++Index)
 		{
-			OutputEdges[Index]->Weight = Utils::Clamp(OutputEdges[Index]->Weight + 0.3 * GetRandomWeight(), -1, 1);
+			OutputEdges[Index]->Weight = Utils::Clamp(OutputEdges[Index]->Weight + 0.3f * GetRandomWeight(), -1, 1);
 		}
-		Bias = Utils::Clamp(Bias + 0.3 * GetRandomWeight(), -1, 1);
+		Bias = Utils::Clamp(Bias + 0.3f * GetRandomWeight(), -1, 1);
 	}
 }
 
@@ -99,6 +103,10 @@ void NeuralNetwork::ANode::Rebirth()
 
 
 
+NeuralNetwork::ALayer::ALayer()
+{
+}
+
 NeuralNetwork::ALayer::ALayer(size_t NodeCount)
 {
 	for (int Index = 0; Index < NodeCount; ++Index)
@@ -109,6 +117,16 @@ NeuralNetwork::ALayer::ALayer(size_t NodeCount)
 
 NeuralNetwork::ALayer::~ALayer()
 {
+}
+
+NeuralNetwork::ALayer* NeuralNetwork::ALayer::ConstructOffspring(ALayer* Parent)
+{
+	ALayer* NewLayer = new ALayer(0);
+	for (int Index = 0; Index < Parent->Nodes.size(); ++Index)
+	{
+		NewLayer->Nodes.push_back(new ANode(Parent->Nodes[Index]->Bias));
+	}
+	return NewLayer;
 }
 
 void NeuralNetwork::ALayer::Process()
@@ -149,6 +167,33 @@ NeuralNetwork::AInstance::~AInstance()
 {
 }
 
+NeuralNetwork::AInstance* NeuralNetwork::AInstance::ConstructOffspring(AInstance* Parent)
+{
+	AInstance* NewInstance = new AInstance();
+
+	for (int LayerIndex = 0; LayerIndex < Parent->Layers.size(); ++LayerIndex)
+	{
+		NewInstance->Layers.push_back(ALayer::ConstructOffspring(Parent->Layers[LayerIndex]));
+
+		if (NewInstance->Layers.size() > 1)
+		{
+			ALayer* LayerTop = NewInstance->Layers[NewInstance->Layers.size() - 1];
+			ALayer* LayerBot = NewInstance->Layers[NewInstance->Layers.size() - 2];
+
+
+			for (int LayerBotNodeIndex = 0; LayerBotNodeIndex < LayerBot->Nodes.size(); ++LayerBotNodeIndex)
+			{
+				for (int LayerTopNodeIndex = 0; LayerTopNodeIndex < LayerTop->Nodes.size(); ++LayerTopNodeIndex)
+				{
+					LayerBot->Nodes[LayerBotNodeIndex]->OutputEdges.push_back(new AEdge(LayerTop->Nodes[LayerTopNodeIndex], Parent->Layers[LayerIndex-1]->Nodes[LayerBotNodeIndex]->OutputEdges[LayerTopNodeIndex]->Weight));
+				}
+			}
+		}
+	}
+	NewInstance->Mutate();
+	return NewInstance;
+}
+
 void NeuralNetwork::AInstance::AddLayer(size_t NodeCount)
 {
 	ASmartWriteLock Lock(Mutex);
@@ -166,7 +211,7 @@ void NeuralNetwork::AInstance::GenerateDna()
 
 	Dna.clear();
 
-	Dna.append(ValueSerialization(Layers.size()));
+	/*Dna.append(ValueSerialization(Layers.size()));
 
 	for (int Index = 0; Index < Layers.size(); ++Index)
 	{
@@ -185,7 +230,7 @@ void NeuralNetwork::AInstance::GenerateDna()
 
 			}
 		}
-	}
+	}*/
 }
 
 void NeuralNetwork::AInstance::ResetInputs()

@@ -15,8 +15,8 @@
 
 
 
-#define APP_NAME "KantFour"
-#define APP_NAME_W L"KantFour"
+#define APP_NAME "NeuralFour"
+#define APP_NAME_W L"NeuralFour"
 
 
 
