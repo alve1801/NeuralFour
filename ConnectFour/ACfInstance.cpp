@@ -54,7 +54,7 @@ void ACfInstance::Init()
 			BREAK_IF(!File.is_open() || File.bad());
 			boost::archive::binary_iarchive ia(File);
 
-			NeuralNetwork::AInstance* NewIntance;
+			NeuralNetwork::ASharedInstance NewIntance;
 			ia >> NewIntance;
 			Opponents.push_back(NewIntance);
 			File.close();
@@ -76,8 +76,8 @@ void ACfInstance::Init()
 
 	if (Opponents.size() > 2)
 	{
-		delete Players[0]->NeuralNetworkInstance;
-		delete Players[1]->NeuralNetworkInstance;
+		//delete Players[0]->NeuralNetworkInstance;
+		//delete Players[1]->NeuralNetworkInstance;
 		Players[0]->NeuralNetworkInstance = Opponents[Opponents.size() - 2];
 		Players[1]->NeuralNetworkInstance = Opponents[Opponents.size() - 1];
 	}
@@ -112,8 +112,8 @@ void ACfInstance::Execute()
 		if (Rounds >= 2)
 		{
 
-			NeuralNetwork::AInstance* Opponent = Players[0]->NeuralNetworkInstance;
-			NeuralNetwork::AInstance* Gladiator = Players[1]->NeuralNetworkInstance;
+			NeuralNetwork::ASharedInstance Opponent = Players[0]->NeuralNetworkInstance;
+			NeuralNetwork::ASharedInstance Gladiator = Players[1]->NeuralNetworkInstance;
 			OpponentIndex++;
 			if (Gladiator->Fitness < Opponent->Fitness)
 			{
@@ -158,8 +158,10 @@ void ACfInstance::Execute()
 
 				if (Generations % OppponentsUpdateTick == 0)
 				{
+					PRINT "SORT_START" TAB Opponents.front()->Wins TAB Opponents.back()->Wins TAB Opponents.size() END;
+
 					DecimateOpponents();
-					PRINT "SORT" TAB Opponents.front()->Wins TAB Opponents.back()->Wins TAB Opponents.size() END;
+					PRINT "SORT_STOP" TAB Opponents.front()->Wins TAB Opponents.back()->Wins TAB Opponents.size() END;
 
 				}
 			}
@@ -180,7 +182,7 @@ void ACfInstance::Execute()
 
 void ACfInstance::DecimateOpponents()
 {
-	std::sort(Opponents.begin(), Opponents.end(), [](NeuralNetwork::AInstance* a, NeuralNetwork::AInstance* b)
+	std::sort(Opponents.begin(), Opponents.end(), [](NeuralNetwork::ASharedInstance a, NeuralNetwork::ASharedInstance b)
 	{
 		return a->Wins > b->Wins;
 	});
@@ -190,7 +192,6 @@ void ACfInstance::DecimateOpponents()
 		{
 			if (Opponents[Index] != LastGladiator && Opponents[Index] != Players[1]->NeuralNetworkInstance)
 			{
-				delete Opponents[Index];
 				Opponents.erase(Opponents.begin() + Index);
 			}
 		}
@@ -323,7 +324,7 @@ bool ACfInstance::CheckForSuccess(ACfPlayer* Player)
 	return false;
 }
 
-void ACfInstance::SaveGladiator(NeuralNetwork::AInstance* Gladiator)
+void ACfInstance::SaveGladiator(NeuralNetwork::ASharedInstance Gladiator)
 {
 	ASmartWriteLock Lock(Gladiator->Mutex);
 

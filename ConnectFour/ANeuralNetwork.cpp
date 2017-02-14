@@ -129,7 +129,7 @@ NeuralNetwork::ALayer::~ALayer()
 
 NeuralNetwork::ALayer* NeuralNetwork::ALayer::ConstructOffspring(ALayer* Parent)
 {
-	ALayer* NewLayer = new ALayer(0);
+	ALayer* NewLayer = new ALayer();
 	for (int Index = 0; Index < Parent->Nodes.size(); ++Index)
 	{
 		NewLayer->Nodes.push_back(new ANode(Parent->Nodes[Index]->Bias));
@@ -167,21 +167,29 @@ void NeuralNetwork::ALayer::LinkLayer(ALayer* OtherLayer)
 
 
 
-NeuralNetwork::AInstance::AInstance(): Fitness(0), TotalFitness(0), HighestOpression(0), Wins(0)
+NeuralNetwork::AInstance::AInstance(): Fitness(0), TotalFitness(0), HighestOpression(0), Wins(0), Id(0)
 {
 }
 
 NeuralNetwork::AInstance::~AInstance()
 {
+	ASmartWriteLock Lock(Mutex);
+	PRINT "Destruct" END;
 	for (int Index = 0; Index < Layers.size(); ++Index)
 	{
 		delete Layers[Index];
 	}
 }
 
-NeuralNetwork::AInstance* NeuralNetwork::AInstance::ConstructOffspring(AInstance* Parent)
+NeuralNetwork::ASharedInstance NeuralNetwork::AInstance::Construct()
 {
-	AInstance* NewInstance = new AInstance();
+	ASharedInstance NewInstance = boost::make_shared<AInstance>();
+	return NewInstance;
+}
+
+NeuralNetwork::ASharedInstance NeuralNetwork::AInstance::ConstructOffspring(ASharedInstance Parent)
+{
+	ASharedInstance NewInstance = boost::make_shared<AInstance>();
 
 	for (int LayerIndex = 0; LayerIndex < Parent->Layers.size(); ++LayerIndex)
 	{
@@ -289,7 +297,7 @@ void NeuralNetwork::AInstance::Mutate()
 	}
 }
 
-void NeuralNetwork::AInstance::GenerateOffspring(NeuralNetwork::AInstance* Parent0, NeuralNetwork::AInstance* Parent1)
+void NeuralNetwork::AInstance::GenerateOffspring(NeuralNetwork::ASharedInstance Parent0, NeuralNetwork::ASharedInstance Parent1)
 {
 	ASmartWriteLock Lock(Mutex);
 	ASmartWriteLock Parent0Lock(Parent0->Mutex);
@@ -310,7 +318,7 @@ void NeuralNetwork::AInstance::GenerateOffspring(NeuralNetwork::AInstance* Paren
 
 }
 
-void NeuralNetwork::AInstance::GenerateOffspring(AInstance* Parent)
+void NeuralNetwork::AInstance::GenerateOffspring(ASharedInstance Parent)
 {
 	ASmartWriteLock Lock(Mutex);
 	ASmartWriteLock ParentLock(Parent->Mutex);

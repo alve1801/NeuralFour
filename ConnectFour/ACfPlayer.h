@@ -34,7 +34,7 @@ public:
 		return Id + 1;
 	}
 
-	NeuralNetwork::AInstance* NeuralNetworkInstance;
+	NeuralNetwork::ASharedInstance NeuralNetworkInstance;
 
 
 	void InsertChip(const UChar Position);

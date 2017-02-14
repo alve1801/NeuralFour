@@ -11,7 +11,7 @@ ACfPlayer::ACfPlayer(ACfInstance* InInstance, UChar Index)
 {
 	Instance = InInstance;
 	Id = Index + 1;
-	NeuralNetworkInstance = new NeuralNetwork::AInstance();
+	NeuralNetworkInstance = NeuralNetwork::AInstance::Construct();
 	NeuralNetworkInstance->AddLayer(MATRIX_WIDTH * MATRIX_HEIGHT * 3);
 	NeuralNetworkInstance->AddLayer(size_t(MATRIX_WIDTH * MATRIX_HEIGHT * 3 * 2));
 	NeuralNetworkInstance->AddLayer(MATRIX_WIDTH);

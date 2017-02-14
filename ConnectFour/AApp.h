@@ -167,7 +167,7 @@ public:
 	UShort MerelsInstanceCount;
 
 	void EndLearingPhase();
-	void MergeArchives(bool* bDonePtr, double* ProgressPtr, double* TotalProgressPtr);
+	//void MergeArchives(bool* bDonePtr, double* ProgressPtr, double* TotalProgressPtr);
 
 };
 

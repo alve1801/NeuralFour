@@ -7,6 +7,7 @@
 #include <atomic>
 
 
+
 class ACfInstance
 {
 public:
@@ -22,10 +23,10 @@ public:
 
 	static vector<ACfInstance*> AllInstances;
 
-	//vector<NeuralNetwork::AInstance*> AllNeuralNetworkInstances;
-	vector<NeuralNetwork::AInstance*> Opponents;
+	//vector<NeuralNetwork::ASharedInstance> AllNeuralNetworkInstances;
+	vector<NeuralNetwork::ASharedInstance> Opponents;
 	size_t OpponentIndex;
-	NeuralNetwork::AInstance* LastGladiator;
+	NeuralNetwork::ASharedInstance LastGladiator;
 	std::ofstream Log;
 
 	size_t Generations = 1;
@@ -56,7 +57,7 @@ public:
 
 	bool CheckForSuccess(ACfPlayer* Player);
 
-	void SaveGladiator(NeuralNetwork::AInstance* Gladiator);
+	void SaveGladiator(NeuralNetwork::ASharedInstance Gladiator);
 
 private:
 	int PlayerOffset = 0;

@@ -7,6 +7,9 @@
 #include "boost/enable_shared_from_this.hpp"
 #include <boost/serialization/version.hpp>
 #include <boost/serialization/vector.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/shared_ptr.hpp>
+#include "boost/enable_shared_from_this.hpp"
 
 using namespace std;
 
@@ -17,6 +20,12 @@ namespace NeuralNetwork
 	class AEdge;
 	class ALayer;
 	class AInstance;
+
+
+	typedef boost::shared_ptr<AEdge> ASharedEdge;
+	typedef boost::shared_ptr<ANode> ASharedNode;
+	typedef boost::shared_ptr<ALayer> ASharedLayer;
+	typedef boost::shared_ptr<AInstance> ASharedInstance;
 
 	typedef signed char VResult;
 	typedef float VValue;
@@ -30,30 +39,6 @@ namespace NeuralNetwork
 	{
 		return (Input ? 1 : -1);
 	}
-
-	/*inline string ValueSerialization(VValue Value)
-	{
-		char Data[8], *pDouble = (char*)(double*)(&Value);
-		for (int i = 0; i < 8; ++i)
-		{
-			Data[i] = pDouble[7 - i];
-		}
-
-		return string(Data);
-	}
-
-	inline string ValueSerialization(size_t Value)
-	{
-		string Result;
-		char* pDouble = (char*)(ULong*)(&Value);
-		for (int Index = 0; Index < 8; ++Index)
-		{
-			Result.push_back(pDouble[7 - Index]);
-		}
-
-		return Result;
-	}*/
-
 };
 
 class NeuralNetwork::AEdge
@@ -149,7 +134,8 @@ public:
 	~AInstance();
 
 
-	static AInstance* ConstructOffspring(AInstance* Parent);
+	static ASharedInstance Construct();
+	static ASharedInstance ConstructOffspring(ASharedInstance Parent);
 
 	/**
 	 * \brief 
@@ -176,8 +162,8 @@ public:
 	UInt Id;
 
 	void Mutate();
-	void GenerateOffspring(AInstance* Parent0, AInstance* Parent1);
-	void GenerateOffspring(AInstance* Parent);
+	void GenerateOffspring(ASharedInstance Parent0, ASharedInstance Parent1);
+	void GenerateOffspring(ASharedInstance Parent);
 
 	void Rebirth();
 

@@ -328,7 +328,7 @@ void AApp::Tick()
 	//{
 	//	vector<ASmartWriteLock*> Locks;
 
-	//	vector<NeuralNetwork::AInstance*> Neuralnetworks;
+	//	vector<NeuralNetwork::ASharedInstance> Neuralnetworks;
 
 	//	for (int Index = 0; Index < Instances.size(); ++Index)
 	//	{
@@ -350,7 +350,7 @@ void AApp::Tick()
 	//	//}
 	//	//Generations++;
 
-	//	//std::sort(Neuralnetworks.begin(), Neuralnetworks.end(), [](NeuralNetwork::AInstance* a, NeuralNetwork::AInstance* b)
+	//	//std::sort(Neuralnetworks.begin(), Neuralnetworks.end(), [](NeuralNetwork::ASharedInstance a, NeuralNetwork::ASharedInstance b)
 	//	//{
 	//	//	return a->Fitness > b->Fitness;
 	//	//});
