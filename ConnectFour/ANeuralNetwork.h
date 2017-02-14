@@ -173,6 +173,7 @@ public:
 	VValue HighestOpression;
 
 	UInt Wins;
+	UInt Id;
 
 	void Mutate();
 	void GenerateOffspring(AInstance* Parent0, AInstance* Parent1);
@@ -184,6 +185,7 @@ public:
 	template<class Archive>
 	void serialize(Archive& ar, const unsigned int Version)
 	{
+		ar & Id;
 		ar & Layers;
 		ar & Wins;
 		ar & Fitness;

@@ -33,6 +33,10 @@ NeuralNetwork::ANode::ANode(VValue InBias) : Value(0), InValue(0), Bias(InBias)
 
 NeuralNetwork::ANode::~ANode()
 {
+	for (int Index = 0; Index < OutputEdges.size(); ++Index)
+	{
+		delete OutputEdges[Index];
+	}
 }
 
 void NeuralNetwork::ANode::TransmitData()
@@ -117,6 +121,10 @@ NeuralNetwork::ALayer::ALayer(size_t NodeCount)
 
 NeuralNetwork::ALayer::~ALayer()
 {
+	for (int Index = 0; Index < Nodes.size(); ++Index)
+	{
+		delete Nodes[Index];
+	}
 }
 
 NeuralNetwork::ALayer* NeuralNetwork::ALayer::ConstructOffspring(ALayer* Parent)
@@ -159,12 +167,16 @@ void NeuralNetwork::ALayer::LinkLayer(ALayer* OtherLayer)
 
 
 
-NeuralNetwork::AInstance::AInstance(): Fitness(0), TotalFitness(0), HighestOpression(10)
+NeuralNetwork::AInstance::AInstance(): Fitness(0), TotalFitness(0), HighestOpression(0), Wins(0)
 {
 }
 
 NeuralNetwork::AInstance::~AInstance()
 {
+	for (int Index = 0; Index < Layers.size(); ++Index)
+	{
+		delete Layers[Index];
+	}
 }
 
 NeuralNetwork::AInstance* NeuralNetwork::AInstance::ConstructOffspring(AInstance* Parent)

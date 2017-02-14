@@ -24,6 +24,10 @@ FVector<SChar> Orientations[8] = {
 ACfInstance::ACfInstance()
 {
 	AllInstances.push_back(this);
+
+
+	MaxLivingOpponents = 500;
+	OppponentsUpdateTick = 50;
 }
 
 ACfInstance::~ACfInstance()
@@ -43,17 +47,30 @@ void ACfInstance::Init()
 
 	while (true)
 	{
-		wstring Filename = SysHelpers::GetAppUserStorageLocation() + L"\\Gladiator_" + to_wstring(Index) + L".Glad";
-		File.open(Filename, ifstream::binary);
-		BREAK_IF(!File.is_open() || File.bad());
-		boost::archive::binary_iarchive ia(File);
+		try
+		{
+			wstring Filename = SysHelpers::GetAppUserStorageLocation() + L"\\Gladiator_" + to_wstring(Index) + L".Glad";
+			File.open(Filename, ifstream::binary);
+			BREAK_IF(!File.is_open() || File.bad());
+			boost::archive::binary_iarchive ia(File);
 
-		NeuralNetwork::AInstance* NewIntance;
-		ia >> NewIntance;
-		Opponents.push_back(NewIntance);
-		File.close();
-		Index++;
-		Generations++;
+			NeuralNetwork::AInstance* NewIntance;
+			ia >> NewIntance;
+			Opponents.push_back(NewIntance);
+			File.close();
+			Index++;
+			Generations++;
+		
+			PRINT NewIntance->Wins END;
+			if (Opponents.size() > 500)
+			{
+				DecimateOpponents();
+			}
+		}
+		catch (...)
+		{
+			break;
+		}
 	}
 
 
@@ -95,24 +112,6 @@ void ACfInstance::Execute()
 		if (Rounds >= 2)
 		{
 
-			//bNextGeneration = true;
-
-
-			//while (true)
-			//{
-			//	//GenLock.Unlock();
-			//	THREAD_SLEEP_MS(100);
-			//	//GenLock.Lock();
-
-			//	if (!bNextGeneration)
-			//	{
-			//		ASmartWriteLock GenLock(Mutex);
-
-			//		Rounds = 0;
-
-			//		break;
-			//	}
-			//}
 			NeuralNetwork::AInstance* Opponent = Players[0]->NeuralNetworkInstance;
 			NeuralNetwork::AInstance* Gladiator = Players[1]->NeuralNetworkInstance;
 			OpponentIndex++;
@@ -120,6 +119,8 @@ void ACfInstance::Execute()
 			{
 				Opponent->Wins++;
 				Opponent->Fitness = 0;
+				SaveGladiator(Opponent);
+
 				if (LastGladiator == nullptr)
 				{
 					LastGladiator = Opponent;
@@ -136,12 +137,13 @@ void ACfInstance::Execute()
 			}
 			else if (OpponentIndex == Opponents.size() -1)
 			{
+				Opponents.push_back(Gladiator);
+
 				LastGladiator = Gladiator;
 				Gladiator->Wins++;
-				SaveGladiator(Gladiator, Generations);
+				SaveGladiator(Gladiator);
 				Players[1]->NeuralNetworkInstance = NeuralNetwork::AInstance::ConstructOffspring(Gladiator);
-				Opponents.push_back(Players[1]->NeuralNetworkInstance);
-
+				Players[1]->NeuralNetworkInstance->Id = UInt(Generations);
 				Generations++;
 				Offsprings++;
 
@@ -154,24 +156,9 @@ void ACfInstance::Execute()
 				OpponentIndex = 0;
 				CurrentFailedOffsprings = 0;
 
-				if (Generations % 50 == 0)
+				if (Generations % OppponentsUpdateTick == 0)
 				{
-					std::sort(Opponents.begin(), Opponents.end(), [](NeuralNetwork::AInstance* a, NeuralNetwork::AInstance* b)
-					{
-						return a->Wins > b->Wins;
-					});
-					if (Opponents.size() > 500)
-					{
-						for (int Index = int(Opponents.size() - 1); Index >= int(Opponents.size() - 50); --Index)
-						{
-							if (Opponents[Index] != Gladiator)
-							{
-								delete Opponents[Index];
-								Opponents.erase(Opponents.begin() + Index);
-							}
-						}
-					}
-
+					DecimateOpponents();
 					PRINT "SORT" TAB Opponents.front()->Wins TAB Opponents.back()->Wins TAB Opponents.size() END;
 
 				}
@@ -190,6 +177,27 @@ void ACfInstance::Execute()
 		
 	}
 }
+
+void ACfInstance::DecimateOpponents()
+{
+	std::sort(Opponents.begin(), Opponents.end(), [](NeuralNetwork::AInstance* a, NeuralNetwork::AInstance* b)
+	{
+		return a->Wins > b->Wins;
+	});
+	if (Opponents.size() > MaxLivingOpponents)
+	{
+		for (int Index = int(Opponents.size() - 1); Index >= MaxLivingOpponents - OppponentsUpdateTick; --Index)
+		{
+			if (Opponents[Index] != LastGladiator && Opponents[Index] != Players[1]->NeuralNetworkInstance)
+			{
+				delete Opponents[Index];
+				Opponents.erase(Opponents.begin() + Index);
+			}
+		}
+	}
+	OpponentIndex = 0;
+}
+
 
 void ACfInstance::StartRound()
 {
@@ -315,11 +323,11 @@ bool ACfInstance::CheckForSuccess(ACfPlayer* Player)
 	return false;
 }
 
-void ACfInstance::SaveGladiator(NeuralNetwork::AInstance* Gladiator, size_t Index)
+void ACfInstance::SaveGladiator(NeuralNetwork::AInstance* Gladiator)
 {
 	ASmartWriteLock Lock(Gladiator->Mutex);
 
-	ofstream fs(SysHelpers::GetAppUserStorageLocation() + L"\\Gladiator_" + to_wstring(Index) + L".Glad", ofstream::binary);
+	ofstream fs(SysHelpers::GetAppUserStorageLocation() + L"\\Gladiator_" + to_wstring(Gladiator->Id) + L".Glad", ofstream::binary);
 	if (fs)
 	{
 		boost::archive::binary_oarchive oa(fs);

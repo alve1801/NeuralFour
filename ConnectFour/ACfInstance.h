@@ -33,6 +33,10 @@ public:
 	size_t CurrentFailedOffsprings = 0;
 
 
+	size_t MaxLivingOpponents;
+	size_t OppponentsUpdateTick;
+
+
 	boost::thread* Thread;
 
 	ASmartMutex Mutex;
@@ -52,11 +56,12 @@ public:
 
 	bool CheckForSuccess(ACfPlayer* Player);
 
-	void SaveGladiator(NeuralNetwork::AInstance* Gladiator, size_t Index);
+	void SaveGladiator(NeuralNetwork::AInstance* Gladiator);
 
 private:
 	int PlayerOffset = 0;
 
+	void DecimateOpponents();
 	
 
 };
