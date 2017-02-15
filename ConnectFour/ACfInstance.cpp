@@ -61,8 +61,8 @@ void ACfInstance::Init()
 			Index++;
 			Generations++;
 		
-			PRINT NewIntance->Wins END;
-			if (Opponents.size() > 500)
+			PRINT NewIntance->Wins TAB Generations END;
+			if (Opponents.size() > MaxLivingOpponents && Generations % OppponentsUpdateTick == 0)
 			{
 				DecimateOpponents();
 			}
@@ -143,6 +143,7 @@ void ACfInstance::Execute()
 				Gladiator->Wins++;
 				SaveGladiator(Gladiator);
 				Players[1]->NeuralNetworkInstance = NeuralNetwork::AInstance::ConstructOffspring(Gladiator);
+				Players[1]->NeuralNetworkInstance->Fights++;
 				Players[1]->NeuralNetworkInstance->Id = UInt(Generations);
 				Generations++;
 				Offsprings++;
@@ -169,6 +170,7 @@ void ACfInstance::Execute()
 			Opponent->Fitness = 0;
 			Players[0]->NeuralNetworkInstance = Opponents[OpponentIndex];
 			Players[0]->NeuralNetworkInstance->Fitness = 0;
+			Players[0]->NeuralNetworkInstance->Fights++;
 			
 
 			Rounds = 0;
@@ -190,7 +192,7 @@ void ACfInstance::DecimateOpponents()
 	{
 		for (int Index = int(Opponents.size() - 1); Index >= MaxLivingOpponents - OppponentsUpdateTick; --Index)
 		{
-			if (Opponents[Index] != LastGladiator && Opponents[Index] != Players[1]->NeuralNetworkInstance)
+			if (Opponents[Index] != LastGladiator && Opponents[Index] != Players[1]->NeuralNetworkInstance && (Opponents[Index]->Fights > OppponentsUpdateTick || Opponents[Index]->Fights == 0))
 			{
 				Opponents.erase(Opponents.begin() + Index);
 			}

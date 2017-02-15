@@ -174,7 +174,7 @@ NeuralNetwork::AInstance::AInstance(): Fitness(0), TotalFitness(0), HighestOpres
 NeuralNetwork::AInstance::~AInstance()
 {
 	ASmartWriteLock Lock(Mutex);
-	PRINT "Destruct" END;
+	PRINT "Destruct" TAB Fights END;
 	for (int Index = 0; Index < Layers.size(); ++Index)
 	{
 		delete Layers[Index];
