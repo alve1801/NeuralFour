@@ -159,6 +159,7 @@ public:
 	VValue HighestOpression;
 
 	UInt Wins;
+	UInt Fights = 0;
 	UInt Id;
 
 	void Mutate();
