@@ -42,10 +42,12 @@ void ACfInstance::Init()
 	Log.open(SysHelpers::GetAppUserStorageLocation() + L"\\Log.csv", ofstream::app);
 	Log << "Generations" << ";" << "Offsprings" << ";" << "CurrentFailedOffsprings" << ";" << endl;
 
-	size_t Index = 1;
+	size_t Index = 0;
 	ifstream File;
 
-	while (ALWAYS_FALSE true)
+	NeuralNetwork::ASharedInstance NewIntance;
+
+	while (true)
 	{
 		try
 		{
@@ -54,18 +56,12 @@ void ACfInstance::Init()
 			BREAK_IF(!File.is_open() || File.bad());
 			boost::archive::binary_iarchive ia(File);
 
-			NeuralNetwork::ASharedInstance NewIntance;
 			ia >> NewIntance;
 			Opponents.push_back(NewIntance);
 			File.close();
 			Index++;
-			Generations++;
-		
-			PRINT NewIntance->Wins TAB Generations END;
-			if (Opponents.size() > MaxLivingOpponents && Generations % OppponentsUpdateTick == 0)
-			{
-				DecimateOpponents();
-			}
+			
+			break;
 		}
 		catch (...)
 		{
@@ -74,17 +70,9 @@ void ACfInstance::Init()
 	}
 
 
-	if (Opponents.size() > 2)
+	if (NewIntance)
 	{
-		//delete Players[0]->NeuralNetworkInstance;
-		//delete Players[1]->NeuralNetworkInstance;
-		Players[0]->NeuralNetworkInstance = Opponents[Opponents.size() - 2];
-		Players[1]->NeuralNetworkInstance = Opponents[Opponents.size() - 1];
-	}
-	else
-	{
-		Opponents.push_back(Players[0]->NeuralNetworkInstance);
-		Opponents.push_back(Players[1]->NeuralNetworkInstance);
+		Players[0]->NeuralNetworkInstance = NewIntance;
 	}
 	
 
@@ -223,15 +211,36 @@ void ACfInstance::StartRound()
 	{
 		for (int Index = 0; Index < 2; ++Index)
 		{
-
+			UpdateFigureMatrix();
 			int PlayerIndex = (Index + PlayerOffset) % 2;
 
 			Lock.Unlock();
-			bool bResult = Players[PlayerIndex]->NextMove();
+			int Result = Players[PlayerIndex]->NextMove();
 			Lock.Lock();
 
+			if (Players[PlayerIndex]->bHuman)
+			{
+				Moves[FigureMatrixCode][Result]++;
+				PRINT Moves.size() << "\t\t[";
+				for (int MoveIndex = 0; MoveIndex < MATRIX_WIDTH; ++MoveIndex)
+				{
+					PRINT int(Moves[FigureMatrixCode][MoveIndex]);
+					if (MoveIndex == MATRIX_WIDTH -1)
+					{
+						PRINT "]" END;
 
-			if (!bResult)
+						break;
+					}
+					PRINT ", ";
+				}
+			}
+			else
+			{
+				SaveGladiator(Players[PlayerIndex]->NeuralNetworkInstance);
+			}
+
+
+			if (Result == -1)
 			{
 				Players[PlayerIndex]->Failure();
 				bEnd = true;
@@ -316,20 +325,20 @@ bool ACfInstance::CheckForSuccess(ACfPlayer* Player)
 			int i;//vertical
 			int ii;//horizontal
 					//check for vertical(|)
-			for (i = a + 1; i <= MATRIX_HEIGHT && FigureMatrix[FVector<UChar>(b, i)] == player; i++, vertical++);//Check down
+			for (i = a + 1; i < MATRIX_HEIGHT && FigureMatrix[FVector<UChar>(b, i)] == player; i++, vertical++);//Check down
 			for (i = a - 1; i >= 0 && FigureMatrix[FVector<UChar>(b, i)] == player; i--, vertical++);//Check up
 			if (vertical >= MATRIX_WIN)return true;
 			//check for horizontal(-)
 			for (ii = b - 1; ii >= 0 && FigureMatrix[FVector<UChar>(ii, a)] == player; ii--, horizontal++);//Check left
-			for (ii = b + 1; ii <= MATRIX_WIDTH && FigureMatrix[FVector<UChar>(ii, a)] == player; ii++, horizontal++);//Check right
+			for (ii = b + 1; ii < MATRIX_WIDTH && FigureMatrix[FVector<UChar>(ii, a)] == player; ii++, horizontal++);//Check right
 			if (horizontal >= MATRIX_WIN) return true;
 			//check for diagonal 1 (\)
 			for (i = a - 1, ii = b - 1; i >= 0 && ii >= 0 && FigureMatrix[FVector<UChar>(ii, i)] == player; diagonal1++, i--, ii--);//up and left
-			for (i = a + 1, ii = b + 1; i <= MATRIX_HEIGHT && ii <= MATRIX_WIDTH && FigureMatrix[FVector<UChar>(ii, i)] == player; diagonal1++, i++, ii++);//down and right
+			for (i = a + 1, ii = b + 1; i < MATRIX_HEIGHT && ii < MATRIX_WIDTH && FigureMatrix[FVector<UChar>(ii, i)] == player; diagonal1++, i++, ii++);//down and right
 			if (diagonal1 >= MATRIX_WIN) return true;
 			//check for diagonal 2(/)
-			for (i = a - 1, ii = b + 1; i >= 0 && ii <= MATRIX_WIDTH && FigureMatrix[FVector<UChar>(ii, i)] == player; diagonal2++, i--, ii++);//up and right
-			for (i = a + 1, ii = b - 1; i <= MATRIX_HEIGHT && ii >= 0 && FigureMatrix[FVector<UChar>(ii, i)] == player; diagonal2++, i++, ii--);//down and left
+			for (i = a - 1, ii = b + 1; i >= 0 && ii < MATRIX_WIDTH && FigureMatrix[FVector<UChar>(ii, i)] == player; diagonal2++, i--, ii++);//up and right
+			for (i = a + 1, ii = b - 1; i < MATRIX_HEIGHT && ii >= 0 && FigureMatrix[FVector<UChar>(ii, i)] == player; diagonal2++, i++, ii--);//down and left
 			if (diagonal2 >= MATRIX_WIN) return true;
 		}
 	}
@@ -338,6 +347,7 @@ bool ACfInstance::CheckForSuccess(ACfPlayer* Player)
 
 	return false;
 }
+
 
 void ACfInstance::SaveGladiator(NeuralNetwork::ASharedInstance Gladiator)
 {

@@ -14,7 +14,7 @@ public:
 
 	explicit ACfPlayer(ACfInstance* InInstance, UChar Index);
 	virtual ~ACfPlayer();
-
+	bool bHuman = false;
 protected:
 	UChar Id;
 	ACfInstance* Instance;
@@ -39,7 +39,7 @@ public:
 
 	void InsertChip(const UChar Position);
 
-	virtual bool NextMove();
+	virtual int NextMove();
 
 	virtual void Success();
 
@@ -57,7 +57,7 @@ public:
 	ACfHumanPlayer(ACfInstance* InInstance, UChar Index);
 	~ACfHumanPlayer();
 
-	bool NextMove() override;
+	int NextMove() override;
 
 	void Success() override;
 
