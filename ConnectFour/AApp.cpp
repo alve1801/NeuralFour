@@ -153,7 +153,7 @@ bool AApp::InitMainWindow()
 		MainWindow.MainUserInterface.Graph->AddGraph();
 		MainWindow.MainUserInterface.Graph->AddGraph();
 
-		MainWindow.MainUserInterface.AddBoard(FRectangle(32 + (32+120) * Index, 32, 120, 120), Instances[Index]);
+		MainWindow.MainUserInterface.AddBoard(FRectangle(32 + (32+120) * Index, 64, 640, 640), Instances[Index]);
 	}
 	
 	//MainWindow.MainUserInterface.Boards[0]->CfInstance = Instances[0];

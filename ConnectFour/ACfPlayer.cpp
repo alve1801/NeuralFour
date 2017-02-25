@@ -36,6 +36,55 @@ void ACfPlayer::InsertChip(const UChar Position)
 
 int ACfPlayer::NextMove()
 {
+	
+
+	//NeuralNetworkInstance->C
+	NeuralNetwork::ALayer* OutputLayer = NeuralNetworkInstance->Layers[NeuralNetworkInstance->Layers.size() - 1];
+
+
+	int BestIndex = SimulateMove();
+
+	/*Instance->UpdateFigureMatrix();
+	auto It = Instance->Moves.find(Instance->FigureMatrixCode);
+
+	if (It != Instance->Moves.end())
+	{
+		int CorrectHighestVal = 0;
+		UChar* Moves = (*It).second;
+
+		int CorrectBestIndex = 0;
+
+		for (int Index = 0; Index < MATRIX_WIDTH; ++Index)
+		{
+			if (Moves[Index] > CorrectHighestVal)
+			{
+				CorrectHighestVal = Moves[Index];
+				CorrectBestIndex = Index;
+			}
+		}
+
+		for (int Index = 0; Index < OutputLayer->Nodes.size(); ++Index)
+		{
+			OutputLayer->Nodes[Index]->CorrectValue = NeuralNetwork::GetResultFromBool(Index == CorrectBestIndex);
+		}
+
+		NeuralNetworkInstance->CalcWeightDelta();
+
+	}*/
+
+	if (!Instance->FigureMatrix.HasSpace(BestIndex))
+	{
+		return -1;
+	}
+
+	InsertChip(BestIndex);
+
+	return BestIndex;
+
+}
+
+int ACfPlayer::SimulateMove()
+{
 	NeuralNetwork::ALayer* InputLayer = NeuralNetworkInstance->Layers[0];
 	ASmartWriteLock Lock(Instance->Mutex);
 	for (int Index = 0; Index < 25; ++Index)
@@ -60,49 +109,9 @@ int ACfPlayer::NextMove()
 			BestIndex = Index;
 		}
 	}
-	Instance->UpdateFigureMatrix();
-	auto It = Instance->Moves.find(Instance->FigureMatrixCode);
-
-	if (It != Instance->Moves.end())
-	{
-		int CorrectHighestVal = 0;
-		UChar* Moves = (*It).second;
-
-		int CorrectBestIndex = 0;
-
-		for (int Index = 0; Index < MATRIX_WIDTH; ++Index)
-		{
-			if (Moves[Index] > CorrectHighestVal)
-			{
-				CorrectHighestVal = OutputLayer->Nodes[Index]->InValue;
-				CorrectBestIndex = Index;
-			}
-		}
-
-		for (int Index = 0; Index < OutputLayer->Nodes.size(); ++Index)
-		{
-			OutputLayer->Nodes[Index]->CorrectValue = NeuralNetwork::GetResultFromBool(Index == CorrectBestIndex);
-		}
-		
-
-	}
-
-	//NeuralNetworkInstance->C
-
-
-
-
-	if (!Instance->FigureMatrix.HasSpace(BestIndex))
-	{
-		return -1;
-	}
-
-	InsertChip(BestIndex);
-
+	
 	return BestIndex;
-
 }
-
 
 void ACfPlayer::Success()
 {

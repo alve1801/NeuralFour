@@ -40,6 +40,7 @@ public:
 	void InsertChip(const UChar Position);
 
 	virtual int NextMove();
+	virtual int SimulateMove();
 
 	virtual void Success();
 

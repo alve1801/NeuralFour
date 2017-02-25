@@ -221,7 +221,22 @@ void ACfInstance::StartRound()
 			if (Players[PlayerIndex]->bHuman)
 			{
 				Moves[FigureMatrixCode][Result]++;
-				PRINT Moves.size() << "\t\t[";
+
+				ACfPlayer* OtherPlayer = Players[OTHER_PLAYER_INDEX(PlayerIndex)];
+
+				OtherPlayer->SimulateMove();
+				NeuralNetwork::ALayer* OutputLayer = OtherPlayer-> NeuralNetworkInstance->Layers[OtherPlayer->NeuralNetworkInstance->Layers.size() - 1];
+
+
+				for (int OutputIndex = 0; OutputIndex < OutputLayer->Nodes.size(); ++OutputIndex)
+				{
+					OutputLayer->Nodes[Index]->CorrectValue = NeuralNetwork::GetResultFromBool(Index == Result);
+				}
+				OtherPlayer->NeuralNetworkInstance->CalcWeightDelta();
+
+
+
+				/*PRINT Moves.size() << "\t\t[";
 				for (int MoveIndex = 0; MoveIndex < MATRIX_WIDTH; ++MoveIndex)
 				{
 					PRINT int(Moves[FigureMatrixCode][MoveIndex]);
@@ -232,7 +247,7 @@ void ACfInstance::StartRound()
 						break;
 					}
 					PRINT ", ";
-				}
+				}*/
 			}
 			else
 			{
