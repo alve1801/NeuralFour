@@ -34,7 +34,7 @@ void ACfPlayer::InsertChip(const UChar Position)
 	Instance->FigureMatrix.Insert(Position, GetId());
 }
 
-bool ACfPlayer::NextMove()
+int ACfPlayer::NextMove()
 {
 	NeuralNetwork::ALayer* InputLayer = NeuralNetworkInstance->Layers[0];
 	ASmartWriteLock Lock(Instance->Mutex);
@@ -62,12 +62,12 @@ bool ACfPlayer::NextMove()
 	}
 	if (!Instance->FigureMatrix.HasSpace(BestIndex))
 	{
-		return false;
+		return -1;
 	}
 
 	InsertChip(BestIndex);
 
-	return true;
+	return BestIndex;
 
 }
 
@@ -97,13 +97,14 @@ void ACfPlayer::Reset()
 
 ACfHumanPlayer::ACfHumanPlayer(ACfInstance* InInstance, UChar Index) : ACfPlayer(InInstance, Index)
 {
+	bHuman = true;
 }
 
 ACfHumanPlayer::~ACfHumanPlayer()
 {
 }
 
-bool ACfHumanPlayer::NextMove()
+int ACfHumanPlayer::NextMove()
 {
 	Globals::App->bWaitingForPlayer = true;
 	while (true)
@@ -117,11 +118,11 @@ bool ACfHumanPlayer::NextMove()
 		if (Instance->FigureMatrix.HasSpace(Globals::App->PlayerInput))
 		{
 			InsertChip(Globals::App->PlayerInput);
-			break;
+			return Globals::App->PlayerInput;
 		}
 	}
 
-	return true;
+	return -1;
 }
 
 void ACfHumanPlayer::Success()
