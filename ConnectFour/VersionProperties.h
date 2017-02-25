@@ -30,7 +30,7 @@
 #define CONFIG_VERSION_KEY (1 + MASTER_VERSION_KEY)
 
 
-#define LIB_OPENCV 1
+#define LIB_OPENCV 0
 
 
 
