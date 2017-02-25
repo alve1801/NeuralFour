@@ -289,27 +289,29 @@ void NeuralNetwork::AInstance::Mutate()
 		}
 	}
 }
-void NeuralNetwork::AInstance::CalcWeightDelta(int CorrectNode)
+void NeuralNetwork::AInstance::CalcWeightDelta()
 {
-	ALayer* OutputInputLayer = Layers[Layers.size()-2]
+    float LearningRate = 0.1;
+	ALayer* OutputInputLayer = Layers[Layers.size()-2];
 	for (size_t NodeIndex = 0; NodeIndex < OutputInputLayer->Nodes.size(); NodeIndex++)
 	{
-		if (CorrectNode == NodeIndex)
-		{
-
-		}
 		ANode* Node = OutputInputLayer->Nodes[NodeIndex];
 		for (size_t EdgeIndex = 0; EdgeIndex < ANode->Edges.size(); EdgeIndex++)
 		{
+	        ALayer* OutputLayer = Layers[Layers.size()-1];
+            ANode* ConnectedOutputNode = OutputLayer->Nodes[EdgesIndex];
 			AEdge* Edge = ANode->Edges[EdgeIndex];
-			float WeightDelta = (20*std::pow(Constants::e,(10*ANode->InValue))/std::pow((std::pow(Constants::e,(10*ANode->InValue))+1),2))*(); 
+
+
+			float WeightDelta = (20*std::pow(Constants::e,(10*ConnectedOutputNode->InValue))/std::pow((std::pow(Constants::e,(10*ConnectedOutputNode->InValue))+1),2))*(ConnectedOutputNode->CorrectValue-ConnectedOutputNode->Value)*Node->Value*LearningRate;
+            Edge->Weight += WeightDelta;
+            PRINT WeightDelta END;
 		}
 
 
 	}
 	for(int Index = Layers.size()-2; Index >= 0; Index--)
 	{
-		fo
 	}
 }
 void NeuralNetwork::AInstance::GenerateOffspring(NeuralNetwork::ASharedInstance Parent0, NeuralNetwork::ASharedInstance Parent1)
