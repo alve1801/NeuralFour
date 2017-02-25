@@ -50,14 +50,7 @@ void NeuralNetwork::ANode::TransmitData()
 void NeuralNetwork::ANode::Process()
 {
 	InValue += Bias;
-	if (InValue > 0)
-	{
-		Value = 1;
-	}
-	else
-	{
-		Value = -1;
-	}
+	Value = 2 * (1/(1+std::pow(Constants::e,(-10*InValue))))-1;
 }
 
 void NeuralNetwork::ANode::Mutate()
