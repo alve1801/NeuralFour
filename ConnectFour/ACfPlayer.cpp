@@ -60,6 +60,38 @@ int ACfPlayer::NextMove()
 			BestIndex = Index;
 		}
 	}
+	Instance->UpdateFigureMatrix();
+	auto It = Instance->Moves.find(Instance->FigureMatrixCode);
+
+	if (It != Instance->Moves.end())
+	{
+		int CorrectHighestVal = 0;
+		UChar* Moves = (*It).second;
+
+		int CorrectBestIndex = 0;
+
+		for (int Index = 0; Index < MATRIX_WIDTH; ++Index)
+		{
+			if (Moves[Index] > CorrectHighestVal)
+			{
+				CorrectHighestVal = OutputLayer->Nodes[Index]->InValue;
+				CorrectBestIndex = Index;
+			}
+		}
+
+		for (int Index = 0; Index < OutputLayer->Nodes.size(); ++Index)
+		{
+			OutputLayer->Nodes[Index]->CorrectValue = NeuralNetwork::GetResultFromBool(Index == CorrectBestIndex);
+		}
+		
+
+	}
+
+	//NeuralNetworkInstance->C
+
+
+
+
 	if (!Instance->FigureMatrix.HasSpace(BestIndex))
 	{
 		return -1;

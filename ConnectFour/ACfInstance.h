@@ -59,12 +59,13 @@ public:
 
 	void SaveGladiator(NeuralNetwork::ASharedInstance Gladiator);
 
+	map<ULong, UChar[MATRIX_WIDTH]> Moves;
+
 private:
 	int PlayerOffset = 0;
 
 	void DecimateOpponents();
 
-	map<ULong, UChar[MATRIX_WIDTH]> Moves;
 
 	
 
