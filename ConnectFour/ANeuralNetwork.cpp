@@ -289,29 +289,29 @@ void NeuralNetwork::AInstance::Mutate()
 		}
 	}
 }
-void NeuralNetwork::AInstance::CalcWeightDelta(int CorrectNode)
-{
-	ALayer* OutputInputLayer = Layers[Layers.size()-2]
-	for (size_t NodeIndex = 0; NodeIndex < OutputInputLayer->Nodes.size(); NodeIndex++)
-	{
-		if (CorrectNode == NodeIndex)
-		{
-
-		}
-		ANode* Node = OutputInputLayer->Nodes[NodeIndex];
-		for (size_t EdgeIndex = 0; EdgeIndex < ANode->Edges.size(); EdgeIndex++)
-		{
-			AEdge* Edge = ANode->Edges[EdgeIndex];
-			float WeightDelta = (20*std::pow(Constants::e,(10*ANode->InValue))/std::pow((std::pow(Constants::e,(10*ANode->InValue))+1),2))*(); 
-		}
-
-
-	}
-	for(int Index = Layers.size()-2; Index >= 0; Index--)
-	{
-		fo
-	}
-}
+//void NeuralNetwork::AInstance::CalcWeightDelta(int CorrectNode)
+//{
+//	ALayer* OutputInputLayer = Layers[Layers.size()-2]
+//	for (size_t NodeIndex = 0; NodeIndex < OutputInputLayer->Nodes.size(); NodeIndex++)
+//	{
+//		if (CorrectNode == NodeIndex)
+//		{
+//
+//		}
+//		ANode* Node = OutputInputLayer->Nodes[NodeIndex];
+//		for (size_t EdgeIndex = 0; EdgeIndex < ANode->Edges.size(); EdgeIndex++)
+//		{
+//			AEdge* Edge = ANode->Edges[EdgeIndex];
+//			float WeightDelta = (20*std::pow(Constants::e,(10*ANode->InValue))/std::pow((std::pow(Constants::e,(10*ANode->InValue))+1),2))*(); 
+//		}
+//
+//
+//	}
+//	for(int Index = Layers.size()-2; Index >= 0; Index--)
+//	{
+//		fo
+//	}
+//}
 void NeuralNetwork::AInstance::GenerateOffspring(NeuralNetwork::ASharedInstance Parent0, NeuralNetwork::ASharedInstance Parent1)
 {
 	ASmartWriteLock Lock(Mutex);
