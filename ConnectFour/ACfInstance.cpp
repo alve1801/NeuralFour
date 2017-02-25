@@ -45,7 +45,7 @@ void ACfInstance::Init()
 	size_t Index = 1;
 	ifstream File;
 
-	while (true)
+	while (ALWAYS_FALSE true)
 	{
 		try
 		{

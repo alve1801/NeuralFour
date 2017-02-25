@@ -20,15 +20,15 @@ public:
 		Flag = 0;
 	}
 
-	template<typename T>
-	FFlag(T InFlag)
+	FFlag(Type InFlag)
 	{
 		Flag = Type(InFlag);
 	}
 
-	FFlag(const FFlag& InFlag)
+	template<typename T>
+	FFlag(const FFlag<T>& InFlag)
 	{
-		Flag = InFlag.Flag;
+		Flag = Type(InFlag.GetFlag());
 	}
 
 	void Set(Type NewFlags)
@@ -103,6 +103,27 @@ public:
 	void operator= (FFlag InFlag)
 	{
 		Flag = InFlag.Flag;
+	}
+
+
+	Type operator| (FFlag OtherFlag)
+	{
+		return Flag | OtherFlag.GetFlag();
+	}
+
+	Type operator| (Type OtherFlag)
+	{
+		return Flag | OtherFlag;
+	}
+
+	Type operator& (FFlag OtherFlag)
+	{
+		return Flag & OtherFlag.GetFlag();
+	}
+
+	Type operator& (Type OtherFlag)
+	{
+		return Flag & OtherFlag;
 	}
 
 private:

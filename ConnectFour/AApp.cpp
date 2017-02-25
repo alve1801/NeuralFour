@@ -37,8 +37,8 @@ AApp::AApp()
 
 	Mouse.Events.Add(UI::Mouse_Nothing);
 
-	RenderData.Theme.BackGround = FColor(25, 25, 26);
-	RenderData.Theme.MerelsLines = FColor(120);
+	RenderData.Theme.BackGround = FColor(128);
+	RenderData.Theme.MerelsLines = FColor(60);
 
 
 	RestartIterations = 25;
@@ -153,7 +153,7 @@ bool AApp::InitMainWindow()
 		MainWindow.MainUserInterface.Graph->AddGraph();
 		MainWindow.MainUserInterface.Graph->AddGraph();
 
-		//MainWindow.MainUserInterface.AddBoard(FRectangle(32 + (32+120) * Index, 32, 120, 120), Instances[Index]);
+		MainWindow.MainUserInterface.AddBoard(FRectangle(32 + (32+120) * Index, 32, 120, 120), Instances[Index]);
 	}
 	
 	//MainWindow.MainUserInterface.Boards[0]->CfInstance = Instances[0];

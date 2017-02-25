@@ -33,6 +33,10 @@ struct FRectangle
 	{
 	}
 
+	FRectangle(FPoint InTL, FPoint Size, bool FromSize) : TL(InTL), BR(InTL + Size)
+	{
+	}
+
 	FRectangle(FPoint InTL, int Width, int Height) : TL(InTL), BR(InTL.x + Width, InTL.y + Height)
 	{
 	}
@@ -84,6 +88,16 @@ struct FRectangle
 	FRectangle GetDilated(FPoint Dilation) const
 	{
 		return FRectangle(TL - Dilation, BR + Dilation);
+	}
+
+	FRectangle GetClipped(FRectangle ClippingRectangle) const
+	{
+		return FRectangle(FPoint(max(TL.x, ClippingRectangle.TL.x), max(TL.y, ClippingRectangle.TL.y)), FPoint(min(BR.x, ClippingRectangle.BR.x), min(BR.y, ClippingRectangle.BR.y)));
+	}
+
+	FRectangle GetClipped(FRectangle* ClippingRectangle) const
+	{
+		return FRectangle(FPoint(max(TL.x, ClippingRectangle->TL.x), max(TL.y, ClippingRectangle->TL.y)), FPoint(min(BR.x, ClippingRectangle->BR.x), min(BR.y, ClippingRectangle->BR.y)));
 	}
 
 	int GetHeight() const

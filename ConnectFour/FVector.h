@@ -12,6 +12,9 @@
 #include "opencv2/core/mat.hpp"
 #endif
 #include "Definitions.h"
+#include "Utils.h"
+#include <string>
+
 
 template<typename Type>
 struct FVector
@@ -61,78 +64,41 @@ struct FVector
 	{
 	}
 
-
-	FVector operator+(const FVector P) const
-	{
-		return FVector<Type>(x + P.x, y + P.y);
-	}
-
-	FVector operator-(const FVector P) const
-	{
-		return FVector(x - P.x, y - P.y);
-	}
-
-	FVector operator-() const
-	{
-		return FVector(-x, -y);
-	}
-
-
-	template<typename T>
-	FVector operator*(const T Factor) const
-	{
-		return FVector(Type(x * Factor), Type(y * Factor));
-	}
-
-	template<>
-	FVector operator*<FVector>(const FVector Factor) const
-	{
-		return FVector(x * Factor.x, y * Factor.y);
-	}
-
-	template<typename T>
-	FVector operator/(const T Dividor) const
-	{
-		return FVector(x / Dividor, y / Dividor);
-	}
-
-	template<>
-	FVector operator/<FVector>(const FVector Factor) const
-	{
-		return FVector(x / Factor.x, y / Factor.y);
-	}
-
-
-	void operator+=(const FVector P)
-	{
-		x += P.x;
-		y += P.y;
-	}
-
-	void operator-=(const FVector P)
-	{
-		x -= P.x;
-		y -= P.y;
-	}
-
-	bool operator==(const FVector P) const
-	{
-		return x == P.x && y == P.y;
-	}
-
-	bool operator!=(const FVector P) const
-	{
-		return x != P.x || y != P.y;
-	}
-
 	template<typename NewType>
 	FVector<NewType> Cast() const
 	{
 		return FVector<NewType>(NewType(x), NewType(y));
 	}
 
+
+	FVector& operator+=(const FVector& Right)
+	{
+		x += Right.x;
+		y += Right.y;
+		return *this;
+	}
+
+	FVector& operator-=(const FVector& Right)
+	{
+		x -= Right.x;
+		y -= Right.y;
+		return *this;
+	}
+
+	bool operator==(const FVector& P) const
+	{
+		return x == P.x && y == P.y;
+	}
+
+	bool operator!=(const FVector& P) const
+	{
+		return x != P.x || y != P.y;
+	}
+
+
+
 	template<typename TR>
-	static FVector<TR> Lerp(FVector A, FVector B, float Alpha)
+	static FVector<TR> Lerp(FVector A, FVector B, double Alpha)
 	{
 		return FVector(TR(A.x + Alpha * (B.x - A.x)), TR(A.y + Alpha * (B.y - A.y)));
 	}
@@ -145,7 +111,7 @@ struct FVector
 	template<typename TR>
 	TR GetLength() const
 	{
-		return TR(sqrt(pow(x, 2) + pow(y, 2)));
+		return TR(sqrt(TR(Utils::Square(x) + Utils::Square(y))));
 	}
 
 	template<typename TR, typename T>
@@ -162,16 +128,7 @@ struct FVector
 	FVector<Type> GetFast() const
 	{
 		FVector<Type> Temp = GetNormalized();
-		Type Factor = 1;
-		if (abs(Temp.x) > abs(Temp.y))
-		{
-			Factor = 1.f / abs(Temp.x);
-		}
-		else
-		{
-			Factor = 1.f / abs(Temp.y);
-		}
-		return Temp * Factor;
+		return Temp * 1.0 / abs((abs(Temp.x) > abs(Temp.y)) ? Temp.x : Temp.y);
 	}
 
 	FVector<Type> GetOrthogonal() const
@@ -181,13 +138,17 @@ struct FVector
 
 	FVector<int> GetRounded() const
 	{
-		return FVector<int>(int(roundf(x)), int(roundf(y)));
+		return FVector<int>(int(round(x)), int(round(y)));
 	}
 
 	FVector<Type> GetRotated(double Degrees) const
 	{
 		Degrees *= Constants::Pi / 180;
-		return FVector<Type>(Type(x * cos(Degrees) - y * sin(Degrees)), Type(x * sin(Degrees) + y * cos(Degrees)));
+		double Sin = sin(Degrees);
+		double Cos = cos(Degrees);
+		Type Back = Type((Type(double(x) * Sin)) + (Type(double(y) * Cos)));
+		Type Front = Type((Type(double(x) * Cos)) - (Type(double(y) * Sin)));
+		return FVector<Type>(Front, Back);
 	}
 
 	template<typename TR>
@@ -210,7 +171,79 @@ struct FVector
 		return cv::Point(x, y);
 	}
 #endif
+
+
+	std::ostream& Dump(std::ostream &os, const FVector& p)
+	{
+		return os << '[' << x << '|' << y << ']';
+	}
+
+	string GetString()
+	{
+		return'[' + to_string(x) + '|' + to_string(y) + ']';
+	}
+
 };
+
+template<typename T0>
+FVector<T0> operator+(const FVector<T0>& Left, const FVector<T0>& Right)
+{
+	return FVector<T0>(Left.x + Right.x, Left.y + Right.y);
+}
+
+template<typename T0>
+FVector<T0> operator-(const FVector<T0>& Left, const FVector<T0>& Right)
+{
+	return FVector<T0>(Left.x - Right.x, Left.y - Right.y);
+}
+
+template<typename T0>
+FVector<T0> operator-(const FVector<T0>& Left)
+{
+	return FVector<T0>(-Left.x, -Left.y);
+}
+
+
+
+
+template<typename T0, typename T1>
+FVector<T0> operator*(const FVector<T0>& Left, const T1 Right)
+{
+	return FVector<T0>(T0(Left.x * Right), T0(Left.y * Right));
+}
+
+template<typename T0, typename T1>
+FVector<T0> operator*(const T1 Left, const FVector<T0>& Right)
+{
+	return FVector<T0>(T0(Left.x * Right), T0(Left.y * Right));
+}
+
+template<typename T0>
+FVector<T0> operator*(const FVector<T0>& Left, const FVector<T0>& Right)
+{
+	return FVector<T0>(T0(Left.x * Right.x), T0(Left.y * Right.y));
+}
+
+
+
+
+template<typename T0, typename T1>
+FVector<T0> operator/(const FVector<T0>& Left, const T1 Right)
+{
+	return FVector<T0>(T0(Left.x / Right), T0(Left.y / Right));
+}
+
+template<typename T0, typename T1>
+FVector<T0> operator/(const T1 Left, const FVector<T0>& Right)
+{
+	return FVector<T0>(T0(Left.x / Right), T0(Left.y / Right));
+}
+
+template<typename T0>
+FVector<T0> operator/(const FVector<T0>& Left, const FVector<T0>& Right)
+{
+	return FVector<T0>(T0(Left.x / Right.x), T0(Left.y / Right.y));
+}
 
 
 typedef FVector<int> FPoint;

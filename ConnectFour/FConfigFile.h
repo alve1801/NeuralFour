@@ -8,12 +8,13 @@
 #include "FVector.h"
 #include <map>
 #include <fstream>
+#include "Utils.h"
 
 
 
 struct FConfigFile
 {
-	wstring FilePath;
+	std::wstring FilePath;
 	std::map<std::string, std::string> Entries;
 	UInt Version;
 
@@ -37,101 +38,47 @@ struct FConfigFile
 		return f.good();
 	}
 
-	bool CreateConfigFile() const
+	bool OpenFile() const
 	{
 		RETURN_IF(Exists()) false;
 		std::ofstream InputStream(FilePath);
 		return InputStream.is_open();
 	}
 
-	UInt GetVersion() const
+
+	void SetEntry(string Key, string StringValue, const bool bOverWrite = true)
 	{
-		return Version;
-	}
-	void SetVersion(UInt NewVersion)
-	{
-		Version = NewVersion;
-	}
-
-
-	bool CreateNewEntry(string Key, string StringValue)
-	{
-		RETURN_IF(STD_CONTAINS(Entries, Key)) false;
-		Entries.insert(std::pair<string, string>(Key, StringValue));
-		return true;
-	}
-
-	bool CreateNewEntry(string Key, int Value)
-	{
-		RETURN_IF(STD_CONTAINS(Entries, Key)) false;
-		string StringValue = to_string(Value);
-		Entries.insert(std::pair<string, string>(Key, StringValue));
-		return true;
-	}
-
-	bool CreateNewEntry(string Key, float Value)
-	{
-		RETURN_IF(STD_CONTAINS(Entries, Key)) false;
-		string StringValue = to_string(Value);
-		Entries.insert(std::pair<string, string>(Key, StringValue));
-		return true;
-	}
-
-	bool CreateNewEntry(string Key, FPoint Value)
-	{
-		RETURN_IF(STD_CONTAINS(Entries, Key)) false;
-		string StringValue = to_string(Value.x) + '|' + to_string(Value.y);
-		Entries.insert(std::pair<string, string>(Key, StringValue));
-		return true;
-	}
-
-	bool CreateNewEntry(string Key, FRectangle Value)
-	{
-		RETURN_IF(STD_CONTAINS(Entries, Key)) false;
-		string StringValue = to_string(Value.TL.x) + '|' + to_string(Value.TL.y) + '|' + to_string(Value.BR.x) + '|' + to_string(Value.BR.y);
-		Entries.insert(std::pair<string, string>(Key, StringValue));
-		return true;
-	}
-
-
-
-	bool SetEntry(string Key, string StringValue)
-	{
-		RETURN_IF(!STD_CONTAINS(Entries, Key)) false;
+		RETURN_IF(!bOverWrite && STD_CONTAINS(Entries, Key));
 		Entries[Key] = StringValue;
-		return true;
 	}
 
-	bool SetEntry(string Key, int Value)
+	void SetEntry(string Key, int Value, const bool bOverWrite = true)
 	{
-		RETURN_IF(!STD_CONTAINS(Entries, Key)) false;
+		RETURN_IF(!bOverWrite && STD_CONTAINS(Entries, Key));
 		string StringValue = to_string(Value);
 		Entries[Key] = StringValue;
-		return true;
 	}
 
-	bool SetEntry(string Key, float Value)
+	void SetEntry(string Key, double Value, const bool bOverWrite = true)
 	{
-		RETURN_IF(!STD_CONTAINS(Entries, Key)) false;
+		RETURN_IF(!bOverWrite && STD_CONTAINS(Entries, Key));
 		string StringValue = to_string(Value);
 		Entries[Key] = StringValue;
-		return true;
 	}
 
-	bool SetEntry(string Key, FPoint Value)
+	void SetEntry(string Key, FPoint Value, const bool bOverWrite = true)
 	{
-		RETURN_IF(!STD_CONTAINS(Entries, Key)) false;
+		RETURN_IF(!bOverWrite && STD_CONTAINS(Entries, Key));
 		string StringValue = to_string(Value.x) + '|' + to_string(Value.y);
 		Entries[Key] = StringValue;
-		return true;
+		
 	}
 
-	bool SetEntry(string Key, FRectangle Value)
+	void SetEntry(string Key, FRectangle Value, const bool bOverWrite = true)
 	{
-		RETURN_IF(!STD_CONTAINS(Entries, Key)) false;
+		RETURN_IF(!bOverWrite && STD_CONTAINS(Entries, Key));
 		string StringValue = to_string(Value.TL.x) + '|' + to_string(Value.TL.y) + '|' + to_string(Value.BR.x) + '|' + to_string(Value.BR.y);
 		Entries[Key] = StringValue;
-		return true;
 	}
 
 
@@ -148,10 +95,10 @@ struct FConfigFile
 		return stoi(Entries[Key]);
 	}
 
-	float GetEntryAsFloat(string Key)
+	double GetEntryAsDouble(string Key)
 	{
 		RETURN_IF(!STD_CONTAINS(Entries, Key)) 0;
-		return stof(Entries[Key]);
+		return stod(Entries[Key]);
 	}
 
 	FPoint GetEntryAsPoint(string Key)
@@ -218,8 +165,6 @@ struct FConfigFile
 
 	bool GetEntryAsBool(string Key)
 	{
-		RETURN_IF(!STD_CONTAINS(Entries, Key)) false;
-
 		string Value = Entries[Key];
 		if (Value == "true" || Value == "1")
 		{
