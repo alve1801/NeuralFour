@@ -164,7 +164,7 @@ public:
 	UInt Id;
 
 	void Mutate();
-	void CalcWeightDelta(int CorrectNode);
+	void CalcWeightDelta();
 	void GenerateOffspring(ASharedInstance Parent0, ASharedInstance Parent1);
 	void GenerateOffspring(ASharedInstance Parent);
 
