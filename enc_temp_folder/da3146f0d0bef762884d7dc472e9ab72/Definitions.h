@@ -20,7 +20,7 @@ typedef ULong QWord;
 namespace Constants
 {
 	constexpr double Pi = 3.1415926535897932385;
-	constexpr double e = 2.7182818284590452353602874713527;
+	//constexpr double  = 3.1415926535897932385;
 	constexpr long double GravitationalConstant = 0.0000000000667428;
 }
 
