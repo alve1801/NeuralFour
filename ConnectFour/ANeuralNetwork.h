@@ -77,6 +77,7 @@ public:
 	VValue Value;
 	VValue InValue;
 	VValue Bias;
+	VValue CorrectValue;
 
 	void TransmitData();
 
