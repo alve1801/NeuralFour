@@ -195,6 +195,14 @@ void ACfBoard::Render(SDL_Renderer* Renderer)
 				DrawRectangle(Renderer, FRectangle(BL + (CellSize*0.2).Cast<int>(), BL + (CellSize*0.8).Cast<int>()));
 			}
 		}
+
+		if (Globals::App->bWaitingForPlayer)
+		{
+			SetRenderColor(Renderer, FColor(255));
+
+			FPoint BL = FPoint(Area.TL.x + Globals::App->PlayerInput*CellSize.x, Area.BR.y - MATRIX_HEIGHT * CellSize.y - CellSize.y);
+			DrawRectangle(Renderer, FRectangle(BL + (CellSize*0.2).Cast<int>(), BL + (CellSize*0.8).Cast<int>()));
+		}
 	}
 
 }

@@ -2,19 +2,21 @@
 #include "ACfPlayer.h"
 #include "ACfInstance.h"
 #include "Globals.h"
-
-
-
+#include "AApp.h"
 
 
 ACfPlayer::ACfPlayer(ACfInstance* InInstance, UChar Index)
 {
 	Instance = InInstance;
 	Id = Index + 1;
-	NeuralNetworkInstance = NeuralNetwork::AInstance::Construct();
-	NeuralNetworkInstance->AddLayer(MATRIX_WIDTH * MATRIX_HEIGHT * 3);
-	NeuralNetworkInstance->AddLayer(size_t(MATRIX_WIDTH * MATRIX_HEIGHT * 3 * 2));
-	NeuralNetworkInstance->AddLayer(MATRIX_WIDTH);
+	if (Index == 0)
+	{
+		NeuralNetworkInstance = NeuralNetwork::AInstance::Construct();
+		NeuralNetworkInstance->AddLayer(MATRIX_WIDTH * MATRIX_HEIGHT * 3);
+		NeuralNetworkInstance->AddLayer(size_t(MATRIX_WIDTH * MATRIX_HEIGHT * 3 * 2));
+		NeuralNetworkInstance->AddLayer(MATRIX_WIDTH);
+	}
+
 }
 
 ACfPlayer::~ACfPlayer()
@@ -27,6 +29,7 @@ void ACfPlayer::InsertChip(const UChar Position)
 {
 	//auto Move = Instance->ArchiveMove(Position);
 	//Moves.push_back(AMove(Move, Position));
+	ASmartWriteLock Lock(Instance->Mutex);
 
 	Instance->FigureMatrix.Insert(Position, GetId());
 }
@@ -34,7 +37,7 @@ void ACfPlayer::InsertChip(const UChar Position)
 bool ACfPlayer::NextMove()
 {
 	NeuralNetwork::ALayer* InputLayer = NeuralNetworkInstance->Layers[0];
-
+	ASmartWriteLock Lock(Instance->Mutex);
 	for (int Index = 0; Index < 25; ++Index)
 	{
 		UChar PlayerId = Instance->FigureMatrix[Index];
@@ -85,4 +88,53 @@ void ACfPlayer::Failure()
 void ACfPlayer::Reset()
 {
 	//Moves.clear();
+}
+
+
+
+
+
+
+ACfHumanPlayer::ACfHumanPlayer(ACfInstance* InInstance, UChar Index) : ACfPlayer(InInstance, Index)
+{
+}
+
+ACfHumanPlayer::~ACfHumanPlayer()
+{
+}
+
+bool ACfHumanPlayer::NextMove()
+{
+	Globals::App->bWaitingForPlayer = true;
+	while (true)
+	{
+		while (Globals::App->bWaitingForPlayer)
+		{
+			THREAD_SLEEP_MS(100);
+		}
+		ASmartWriteLock Lock(Instance->Mutex);
+
+		if (Instance->FigureMatrix.HasSpace(Globals::App->PlayerInput))
+		{
+			InsertChip(Globals::App->PlayerInput);
+			break;
+		}
+	}
+
+	return true;
+}
+
+void ACfHumanPlayer::Success()
+{
+	PRINT "WIN!" END;
+}
+
+void ACfHumanPlayer::Failure()
+{
+	PRINT "DEFEAT!" END;
+
+}
+
+void ACfHumanPlayer::Reset()
+{
 }

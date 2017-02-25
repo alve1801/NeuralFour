@@ -15,7 +15,7 @@ NeuralNetwork::AEdge::~AEdge()
 {
 }
 
-void NeuralNetwork::AEdge::TransmitData(VResult Value) const
+void NeuralNetwork::AEdge::TransmitData(VValue Value) const
 {
 	TargetNode->InValue += VValue(Value) * Weight;
 }

@@ -13,8 +13,6 @@
 #include "ACfInstance.h"
 
 
-class ABinding;
-class Alkanes;
 
 using namespace std;
 
@@ -165,6 +163,9 @@ public:
 
 	UShort RestartIterations;
 	UShort MerelsInstanceCount;
+
+	std::atomic<bool> bWaitingForPlayer = false;
+	std::atomic<int> PlayerInput = 0;
 
 	void EndLearingPhase();
 	//void MergeArchives(bool* bDonePtr, double* ProgressPtr, double* TotalProgressPtr);

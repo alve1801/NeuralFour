@@ -205,7 +205,24 @@ void AApp::EventHandler(SDL_Event* Event)
 			EndLearingPhase();
 			break;
 
-		
+		case SDLK_LEFT:
+			if (PlayerInput > 0)
+			{
+				PlayerInput--;
+			}
+			break;
+
+		case SDLK_RIGHT:
+			if (PlayerInput < MATRIX_WIDTH-1)
+			{
+				PlayerInput++;
+			}
+			break;
+
+
+		case SDLK_RETURN:
+			bWaitingForPlayer = false;
+			break;
 
 		default:
 			break;

@@ -48,7 +48,7 @@ public:
 	AEdge(ANode* InTaregetNode, VValue InWeight);
 	~AEdge();
 
-	void TransmitData(VResult Value) const;
+	void TransmitData(VValue Value) const;
 
 	ANode* TargetNode;
 	VValue Weight;
@@ -74,7 +74,7 @@ public:
 
 	vector<AEdge*> OutputEdges;
 
-	VResult Value;
+	VValue Value;
 	VValue InValue;
 	VValue Bias;
 

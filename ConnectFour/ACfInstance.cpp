@@ -37,7 +37,7 @@ ACfInstance::~ACfInstance()
 void ACfInstance::Init()
 {
 	Players[0] = new ACfPlayer(this, 0);
-	Players[1] = new ACfPlayer(this, 1);
+	Players[1] = new ACfHumanPlayer(this, 1);
 
 	Log.open(SysHelpers::GetAppUserStorageLocation() + L"\\Log.csv", ofstream::app);
 	Log << "Generations" << ";" << "Offsprings" << ";" << "CurrentFailedOffsprings" << ";" << endl;
@@ -112,65 +112,65 @@ void ACfInstance::Execute()
 		if (Rounds >= 2)
 		{
 
-			NeuralNetwork::ASharedInstance Opponent = Players[0]->NeuralNetworkInstance;
-			NeuralNetwork::ASharedInstance Gladiator = Players[1]->NeuralNetworkInstance;
-			OpponentIndex++;
-			if (Gladiator->Fitness < Opponent->Fitness)
-			{
-				Opponent->Wins++;
-				Opponent->Fitness = 0;
-				SaveGladiator(Opponent);
+			//NeuralNetwork::ASharedInstance Opponent = Players[0]->NeuralNetworkInstance;
+			//NeuralNetwork::ASharedInstance Gladiator = Players[1]->NeuralNetworkInstance;
+			//OpponentIndex++;
+			//if (Gladiator->Fitness < Opponent->Fitness)
+			//{
+			//	Opponent->Wins++;
+			//	Opponent->Fitness = 0;
+			//	SaveGladiator(Opponent);
 
-				if (LastGladiator == nullptr)
-				{
-					LastGladiator = Opponent;
-				}
-				Gladiator->GenerateOffspring(LastGladiator);
-				Gladiator->Fitness = 0;
-				Offsprings++;
-				CurrentFailedOffsprings++;
-				//PRINT "Bad Offspring" TAB Generations TAB Offsprings TAB OpponentIndex TAB Opponent->Fitness END;
+			//	if (LastGladiator == nullptr)
+			//	{
+			//		LastGladiator = Opponent;
+			//	}
+			//	Gladiator->GenerateOffspring(LastGladiator);
+			//	Gladiator->Fitness = 0;
+			//	Offsprings++;
+			//	CurrentFailedOffsprings++;
+			//	//PRINT "Bad Offspring" TAB Generations TAB Offsprings TAB OpponentIndex TAB Opponent->Fitness END;
 
-				OpponentIndex = 0;
+			//	OpponentIndex = 0;
 
 
-			}
-			else if (OpponentIndex == Opponents.size() -1)
-			{
-				Opponents.push_back(Gladiator);
+			//}
+			//else if (OpponentIndex == Opponents.size() -1)
+			//{
+			//	Opponents.push_back(Gladiator);
 
-				LastGladiator = Gladiator;
-				Gladiator->Wins++;
-				SaveGladiator(Gladiator);
-				Players[1]->NeuralNetworkInstance = NeuralNetwork::AInstance::ConstructOffspring(Gladiator);
-				Players[1]->NeuralNetworkInstance->Fights++;
-				Players[1]->NeuralNetworkInstance->Id = UInt(Generations);
-				Generations++;
-				Offsprings++;
+			//	LastGladiator = Gladiator;
+			//	Gladiator->Wins++;
+			//	SaveGladiator(Gladiator);
+			//	Players[1]->NeuralNetworkInstance = NeuralNetwork::AInstance::ConstructOffspring(Gladiator);
+			//	Players[1]->NeuralNetworkInstance->Fights++;
+			//	Players[1]->NeuralNetworkInstance->Id = UInt(Generations);
+			//	Generations++;
+			//	Offsprings++;
 
-				PRINT "Next Gen" TAB Generations TAB Offsprings TAB CurrentFailedOffsprings END;
+			//	PRINT "Next Gen" TAB Generations TAB Offsprings TAB CurrentFailedOffsprings END;
 
-				Log << to_string(Generations) << ";" << to_string(Offsprings) << ";" << to_string(CurrentFailedOffsprings) << ";" << endl;
+			//	Log << to_string(Generations) << ";" << to_string(Offsprings) << ";" << to_string(CurrentFailedOffsprings) << ";" << endl;
 
-				Opponent->Fitness = 0;
+			//	Opponent->Fitness = 0;
 
-				OpponentIndex = 0;
-				CurrentFailedOffsprings = 0;
+			//	OpponentIndex = 0;
+			//	CurrentFailedOffsprings = 0;
 
-				if (Generations % OppponentsUpdateTick == 0)
-				{
-					PRINT "SORT_START" TAB Opponents.front()->Wins TAB Opponents.back()->Wins TAB Opponents.size() END;
+			//	if (Generations % OppponentsUpdateTick == 0)
+			//	{
+			//		PRINT "SORT_START" TAB Opponents.front()->Wins TAB Opponents.back()->Wins TAB Opponents.size() END;
 
-					DecimateOpponents();
-					PRINT "SORT_STOP" TAB Opponents.front()->Wins TAB Opponents.back()->Wins TAB Opponents.size() END;
+			//		DecimateOpponents();
+			//		PRINT "SORT_STOP" TAB Opponents.front()->Wins TAB Opponents.back()->Wins TAB Opponents.size() END;
 
-				}
-			}
+			//	}
+			//}
 
-			Opponent->Fitness = 0;
-			Players[0]->NeuralNetworkInstance = Opponents[OpponentIndex];
-			Players[0]->NeuralNetworkInstance->Fitness = 0;
-			Players[0]->NeuralNetworkInstance->Fights++;
+			//Opponent->Fitness = 0;
+			//Players[0]->NeuralNetworkInstance = Opponents[OpponentIndex];
+			//Players[0]->NeuralNetworkInstance->Fitness = 0;
+			//Players[0]->NeuralNetworkInstance->Fights++;
 			
 
 			Rounds = 0;
@@ -226,8 +226,9 @@ void ACfInstance::StartRound()
 
 			int PlayerIndex = (Index + PlayerOffset) % 2;
 
-
+			Lock.Unlock();
 			bool bResult = Players[PlayerIndex]->NextMove();
+			Lock.Lock();
 
 
 			if (!bResult)
@@ -238,6 +239,7 @@ void ACfInstance::StartRound()
 
 			else if (CheckForSuccess(Players[PlayerIndex]))
 			{
+				PRINT "Over" END;
 				Players[PlayerIndex]->Success();
 				Players[(PlayerIndex+1)%2]->Failure();
 
@@ -255,6 +257,7 @@ void ACfInstance::StartRound()
 					}
 					if (RowIndex == 4)
 					{
+
 						bEnd = true;
 						break;
 					}
@@ -264,12 +267,20 @@ void ACfInstance::StartRound()
 
 			if (bEnd)
 			{
+				
 				break;
 			}
 			
 		}
 		if (bEnd)
 		{
+			Lock.Unlock();
+			Globals::App->bWaitingForPlayer = true;
+			while (Globals::App->bWaitingForPlayer)
+			{
+				THREAD_SLEEP_MS(100);
+			}
+			Lock.Lock();
 			break;
 		}
 	}
@@ -291,33 +302,36 @@ void ACfInstance::UpdateFigureMatrix()
 
 bool ACfInstance::CheckForSuccess(ACfPlayer* Player)
 {
-	for (int x = 0; x < MATRIX_WIDTH; ++x)
-	{
-		for (int y = 0; y < MATRIX_HEIGHT; ++y)
-		{
-			UChar Id = FigureMatrix[FVector<UChar>(x, y)];
-			if (Id)
-			{
-				for (UChar OrientationIndex = 0; OrientationIndex < 8; ++OrientationIndex)
-				{
-					FVector<SChar> CheckPosition = FVector<SChar>(x, y);
+	UChar player = Player->GetId();
 
-					bool bWin = true;
-					for (int OffsetIndex = 1; OffsetIndex < 4; ++OffsetIndex)
-					{
-						CheckPosition += Orientations[OrientationIndex];
-						if (!FRectangle(0,0,4,4).Contains(CheckPosition.Cast<int>()) || FigureMatrix[CheckPosition] != Id)
-						{
-							bWin = false;
-							break;
-						}
-					}
-					if (bWin)
-					{
-						return true;
-					}
-				}
-			}
+	for (int a = 0; a < MATRIX_HEIGHT; ++a)
+	{
+		for (int b = 0; b < MATRIX_WIDTH; ++b)
+		{
+			CONTINUE_IF(FigureMatrix[FVector<UChar>(b, a)] != player);
+			int vertical = 1;//(|)
+			int horizontal = 1;//(-)
+			int diagonal1 = 1;//(\)
+			int diagonal2 = 1;//(/)
+			int i;//vertical
+			int ii;//horizontal
+					//check for vertical(|)
+			for (i = a + 1; i <= MATRIX_HEIGHT && FigureMatrix[FVector<UChar>(b, i)] == player; i++, vertical++);//Check down
+			for (i = a - 1; i >= 0 && FigureMatrix[FVector<UChar>(b, i)] == player; i--, vertical++);//Check up
+			if (vertical >= MATRIX_WIN)return true;
+			//check for horizontal(-)
+			for (ii = b - 1; ii >= 0 && FigureMatrix[FVector<UChar>(ii, a)] == player; ii--, horizontal++);//Check left
+			for (ii = b + 1; ii <= MATRIX_WIDTH && FigureMatrix[FVector<UChar>(ii, a)] == player; ii++, horizontal++);//Check right
+			if (horizontal >= MATRIX_WIN) return true;
+			//check for diagonal 1 (\)
+			for (i = a - 1, ii = b - 1; i >= 0 && ii >= 0 && FigureMatrix[FVector<UChar>(ii, i)] == player; diagonal1++, i--, ii--);//up and left
+			for (i = a + 1, ii = b + 1; i <= MATRIX_HEIGHT && ii <= MATRIX_WIDTH && FigureMatrix[FVector<UChar>(ii, i)] == player; diagonal1++, i++, ii++);//down and right
+			if (diagonal1 >= MATRIX_WIN) return true;
+			//check for diagonal 2(/)
+			for (i = a - 1, ii = b + 1; i >= 0 && ii <= MATRIX_WIDTH && FigureMatrix[FVector<UChar>(ii, i)] == player; diagonal2++, i--, ii++);//up and right
+			for (i = a + 1, ii = b - 1; i <= MATRIX_HEIGHT && ii >= 0 && FigureMatrix[FVector<UChar>(ii, i)] == player; diagonal2++, i++, ii--);//down and left
+			if (diagonal2 >= MATRIX_WIN) return true;
+			return false;
 		}
 	}
 

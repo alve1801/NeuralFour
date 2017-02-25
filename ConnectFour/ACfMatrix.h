@@ -3,8 +3,9 @@
 #include "Definitions.h"
 #include "FVector.h"
 
-#define MATRIX_WIDTH 7
-#define MATRIX_HEIGHT 6
+#define MATRIX_WIDTH 5
+#define MATRIX_HEIGHT 5
+#define MATRIX_WIN 3
 
 struct ACfMatrix
 {

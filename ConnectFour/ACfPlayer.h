@@ -13,9 +13,9 @@ class ACfPlayer
 public:
 
 	explicit ACfPlayer(ACfInstance* InInstance, UChar Index);
-	~ACfPlayer();
+	virtual ~ACfPlayer();
 
-private:
+protected:
 	UChar Id;
 	ACfInstance* Instance;
 
@@ -39,12 +39,29 @@ public:
 
 	void InsertChip(const UChar Position);
 
-	bool NextMove();
+	virtual bool NextMove();
 
-	void Success();
+	virtual void Success();
 
-	void Failure();
+	virtual void Failure();
 
-	void Reset();
+	virtual void Reset();
 
+};
+
+
+
+class ACfHumanPlayer : public ACfPlayer
+{
+public:
+	ACfHumanPlayer(ACfInstance* InInstance, UChar Index);
+	~ACfHumanPlayer();
+
+	bool NextMove() override;
+
+	void Success() override;
+
+	void Failure() override;
+
+	void Reset() override;
 };
