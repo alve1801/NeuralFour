@@ -331,7 +331,6 @@ bool ACfInstance::CheckForSuccess(ACfPlayer* Player)
 			for (i = a - 1, ii = b + 1; i >= 0 && ii <= MATRIX_WIDTH && FigureMatrix[FVector<UChar>(ii, i)] == player; diagonal2++, i--, ii++);//up and right
 			for (i = a + 1, ii = b - 1; i <= MATRIX_HEIGHT && ii >= 0 && FigureMatrix[FVector<UChar>(ii, i)] == player; diagonal2++, i++, ii--);//down and left
 			if (diagonal2 >= MATRIX_WIN) return true;
-			return false;
 		}
 	}
 
